@@ -19,25 +19,16 @@ public class EditWaypointController {
   private TextField xPosition;
   @FXML
   private TextField yPosition;
-  @FXML
-  private TextField tangentX;
-  @FXML
-  private TextField tangentY;
-  @FXML
-  private CheckBox lockedTangent;
-  @FXML
-  private CheckBox reverseSpline;
-  @FXML
-  private TextField pointName;
+
 
   private List<Control> controls;
   private ChangeListener<String> nameListener;
 
   @FXML
   private void initialize() {
-    controls = List.of(xPosition, yPosition, tangentX, tangentY, lockedTangent, pointName, reverseSpline);
+    controls = List.of(xPosition, yPosition);
     controls.forEach(control -> control.setDisable(true));
-    List<TextField> textFields = List.of(xPosition, yPosition, tangentX, tangentY);
+    List<TextField> textFields = List.of(xPosition, yPosition);
     textFields.forEach(textField -> textField.setTextFormatter(FxUtils.onlyDoubleText()));
   }
 
@@ -72,7 +63,6 @@ public class EditWaypointController {
       }
     });
     enableSaving(wp);
-    lockTangentOnEdit();
   }
 
   private void enableDoubleBinding(TextField field, DoubleProperty doubleProperty) {
@@ -116,38 +106,19 @@ public class EditWaypointController {
     controls.forEach(control -> control.setDisable(true));
     disableDoubleBinding(xPosition, oldValue.xProperty());
     disableDoubleBinding(yPosition, oldValue.yProperty());
-    disableDoubleBinding(tangentX, oldValue.tangentXProperty());
-    disableDoubleBinding(tangentY, oldValue.tangentYProperty());
-    lockedTangent.selectedProperty().unbindBidirectional(oldValue.lockTangentProperty());
-    reverseSpline.selectedProperty().unbindBidirectional(oldValue.reversedProperty());
-    lockedTangent.setSelected(false);
-    reverseSpline.setSelected(false);
-    pointName.textProperty().removeListener(nameListener);
-    pointName.setText("");
   }
 
   private void bind(Waypoint newValue) {
     controls.forEach(control -> control.setDisable(false));
 
-    if (CurrentSelections.getCurPath().getStart() == newValue || CurrentSelections.getCurPath().getEnd() == newValue) {
-      lockedTangent.setDisable(true);
-      lockedTangent.setSelected(true);
-    } else {
-      lockedTangent.selectedProperty().bindBidirectional(newValue.lockTangentProperty());
-    }
-    reverseSpline.selectedProperty().bindBidirectional(newValue.reversedProperty());
     enableDoubleBinding(xPosition, newValue.xProperty());
     yDoubleBinding(yPosition, newValue.yProperty());
-    enableDoubleBinding(tangentX, newValue.tangentXProperty());
-    enableDoubleBinding(tangentY, newValue.tangentYProperty());
-    pointName.setText(newValue.getName());
-    nameListener = (observable, oldText, newText) -> newValue.setName(newText);
-    pointName.textProperty().addListener(nameListener);
+    
   }
 
   private void enableSaving(ObservableValue<Waypoint> wp) {
     // Save values when out of focus
-    List.of(xPosition, yPosition, tangentX, tangentY, pointName)
+    List.of(xPosition, yPosition)
         .forEach(textField -> {
           textField.setOnKeyReleased(event -> {
             if (!textField.getText().equals("") && wp.getValue() != null) {
@@ -164,23 +135,6 @@ public class EditWaypointController {
             }
           });
         });
-
-    lockedTangent.selectedProperty()
-            .addListener((listener, oldValue, newValue) -> {
-              if (wp.getValue().isLockTangent() != newValue) {
-                SaveManager.getInstance().addChange(CurrentSelections.getCurPath());
-              }
-            });
-    reverseSpline.selectedProperty()
-            .addListener((listener, oldValue, newValue) -> {
-              if (wp.getValue().isReversed() != newValue) {
-                SaveManager.getInstance().addChange(CurrentSelections.getCurPath());
-              }
-            });
   }
-
-  private void lockTangentOnEdit() {
-    tangentY.setOnKeyTyped((KeyEvent event) -> lockedTangent.setSelected(true));
-    tangentX.setOnKeyTyped((KeyEvent event) -> lockedTangent.setSelected(true));
-  }
+    
 }

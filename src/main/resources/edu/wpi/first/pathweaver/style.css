@@ -54,11 +54,18 @@
     -fx-stroke: rgb(255, 241, 173);
 }
 
-.path {
+.pathouter {
+    -fx-stroke-line-cap: round;
+    -fx-fill: null;
+    -fx-stroke: #f9d90050;
+    -fx-stroke-line-join: round;
+}
+.pathinner {
     -fx-stroke-line-cap: round;
     -fx-fill: null;
     -fx-cursor: hand;
-    -fx-stroke: derive(my-color, -25%);
+    -fx-stroke: purple;
+    -fx-stroke-line-join: round;
 }
 
 .tank {
@@ -66,6 +73,6 @@
 }
 
 .tangent {
-    -fx-stroke: cyan;
+    -fx-stroke: null;
     -fx-cursor: hand;
 }

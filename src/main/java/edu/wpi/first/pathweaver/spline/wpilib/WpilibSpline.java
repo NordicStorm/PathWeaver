@@ -19,6 +19,9 @@ import edu.wpi.first.pathweaver.spline.SplineSegment;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.effect.BlurType;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.paint.Color;
 
 import javax.measure.UnitConverter;
 
@@ -61,6 +64,8 @@ public class WpilibSpline extends AbstractSpline {
 
     @Override
     public void update() {
+        ProjectPreferences.Values prefs = ProjectPreferences.getInstance().getValues();
+        
         group.getChildren().clear();
         for (int i = 1; i < waypoints.size(); i++) {
             Waypoint segStart = waypoints.get(i - 1).copy();
@@ -77,9 +82,10 @@ public class WpilibSpline extends AbstractSpline {
 
             for (int sample = 0; sample <= 40; sample++) {
                 PoseWithCurvature pose = quintic.getPoint(sample / 40.0);
-                seg.getLine().getPoints().add(pose.poseMeters.getTranslation().getX());
+                seg.addPointToLines(pose.poseMeters.getTranslation().getX());
+                
                 //Convert from WPILib to JavaFX coords
-                seg.getLine().getPoints().add(-pose.poseMeters.getTranslation().getY());
+                seg.addPointToLines(-pose.poseMeters.getTranslation().getY());
             }
 
             if (segStart.isReversed()) {
@@ -87,18 +93,22 @@ public class WpilibSpline extends AbstractSpline {
             }
 
             seg.getLine().strokeWidthProperty().bind(strokeWidth);
-            seg.getLine().getStyleClass().addAll("path");
+            seg.getOuterLine().strokeWidthProperty().set(prefs.getTrackWidth());
 
             FxUtils.enableSubchildSelector(seg.getLine(), subchildIdx);
+            
             seg.getLine().applyCss();
+            seg.getOuterLine().applyCss();
+            
+            group.getChildren().add(seg.getOuterLine());
+            group.getChildren().add(seg.getLine()); // this has to come after the above for clicking to work
 
-            group.getChildren().add(seg.getLine());
         }
     }
 
     @Override
     public void addToGroup(Group splineGroup, double scaleFactor) {
-        strokeWidth.set(scaleFactor);
+        strokeWidth.set(scaleFactor*0.25);
         splineGroup.getChildren().add(group);
         group.toBack();
     }
