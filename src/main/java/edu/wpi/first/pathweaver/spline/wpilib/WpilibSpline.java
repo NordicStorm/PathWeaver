@@ -16,6 +16,11 @@ import edu.wpi.first.pathweaver.Waypoint;
 import edu.wpi.first.pathweaver.path.Path;
 import edu.wpi.first.pathweaver.spline.AbstractSpline;
 import edu.wpi.first.pathweaver.spline.SplineSegment;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.util.Duration;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -99,16 +104,19 @@ public class WpilibSpline extends AbstractSpline {
             
             seg.getLine().applyCss();
             seg.getOuterLine().applyCss();
-            
+
             group.getChildren().add(seg.getOuterLine());
             group.getChildren().add(seg.getLine()); // this has to come after the above for clicking to work
+            
+		  
+            
 
         }
     }
 
     @Override
     public void addToGroup(Group splineGroup, double scaleFactor) {
-        strokeWidth.set(scaleFactor*0.25);
+        strokeWidth.set(scaleFactor*0.5);
         splineGroup.getChildren().add(group);
         group.toBack();
     }

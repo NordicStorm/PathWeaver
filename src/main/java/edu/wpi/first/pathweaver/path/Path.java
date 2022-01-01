@@ -154,7 +154,7 @@ public abstract class Path {
     public void recalculateTangents(Waypoint wp) {
         int curWpIndex = getWaypoints().indexOf(wp);
 
-        if (curWpIndex - 1 > 0) {
+        if (curWpIndex - 1 >= 0) {
             Waypoint previous = getWaypoints().get(curWpIndex - 1);
             updateTangent(previous);
         }
@@ -228,15 +228,20 @@ public abstract class Path {
     }
 
     /**
-     * Removes a Waypoint from this path. This implementation will not remove the last 2 points.
+     * Removes a Waypoint from this path. This implementation will not remove the last 2 points. It also updates the tangents of the waypoints before and after
      * @param waypoint the waypoint to remove
      * @return whether the remove succeeded or not
      */
     public boolean removeWaypoint(Waypoint waypoint) {
+    	int wpIndex = getWaypoints().indexOf(waypoint)-1;
+    	boolean success = false;
         if (waypoints.size() > 2) {
-            return waypoints.remove(waypoint);
+        	success = waypoints.remove(waypoint);
         }
-        return false;
+        if(wpIndex<0) {wpIndex = 0;} // if we just deleted the first waypoint
+        recalculateTangents(getWaypoints().get(wpIndex));
+        update();
+        return success;
     }
 
     /**

@@ -57,7 +57,7 @@
 .pathouter {
     -fx-stroke-line-cap: round;
     -fx-fill: null;
-    -fx-stroke: #f9d90050;
+    -fx-stroke: #2a00f950;
     -fx-stroke-line-join: round;
 }
 .pathinner {
@@ -66,6 +66,7 @@
     -fx-cursor: hand;
     -fx-stroke: purple;
     -fx-stroke-line-join: round;
+    -fx-view-order: -1.0;
 }
 
 .tank {

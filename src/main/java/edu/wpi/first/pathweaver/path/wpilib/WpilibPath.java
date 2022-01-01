@@ -108,14 +108,26 @@ public class WpilibPath extends Path {
     @Override
     protected void updateTangent(Waypoint wp) {
         int curWpIndex = getWaypoints().indexOf(wp);
-        if (curWpIndex - 1 < 0 || curWpIndex + 1 >= waypoints.size() || wp.isLockTangent()) {
+        Point2D wpTangent;
+        if (curWpIndex - 1 < 0) {
+            Waypoint next = getWaypoints().get(curWpIndex + 1);
+            wpTangent =  next.getCoords().subtract(wp.getCoords()).normalize().multiply(0.1);
+            
+        }else if(curWpIndex + 1 >= waypoints.size()) {
+        	Waypoint previous = getWaypoints().get(curWpIndex - 1);
+        	wpTangent =  wp.getCoords().subtract(previous.getCoords()).normalize().multiply(0.1);
+            
+        }
+        else if(wp.isLockTangent()) {
             return;
+        }else {
+        	Waypoint previous = getWaypoints().get(curWpIndex - 1);
+            Waypoint next = getWaypoints().get(curWpIndex + 1);
+
+            wpTangent = PathUtil.rawThetaOptimization(previous.getCoords(), wp.getCoords(), next.getCoords());
         }
 
-        Waypoint previous = getWaypoints().get(curWpIndex - 1);
-        Waypoint next = getWaypoints().get(curWpIndex + 1);
-
-        Point2D wpTangent = PathUtil.rawThetaOptimization(previous.getCoords(), wp.getCoords(), next.getCoords());
+        
         if (wp.isReversed()) {
             wpTangent = wpTangent.multiply(-1);
         }
@@ -170,7 +182,7 @@ public class WpilibPath extends Path {
      * @param name          The string name to assign path, also used for naming exported files
      */
     private WpilibPath(Point2D startPos, Point2D endPos, Point2D startTangent, Point2D endTangent, String name) {
-        this(List.of(new Waypoint(startPos, startTangent, true, false), new Waypoint(endPos, endTangent, true, false)), name);
+        this(List.of(new Waypoint(startPos, startTangent, false, false), new Waypoint(endPos, endTangent, false, false)), name);
     }
 
     @Override

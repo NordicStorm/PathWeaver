@@ -10,6 +10,7 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.css.PseudoClass;
 import javafx.fxml.FXML;
+import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.control.TreeItem;
 import javafx.scene.image.Image;
@@ -64,6 +65,12 @@ public class FieldDisplayController {
             }
 
             if(CurrentSelections.getCurPath() != null) {
+            	if(e.getClickCount()==2) { // allow double click to add new waypoint at end
+            		Waypoint newPoint = new Waypoint(new Point2D(e.getX(), -e.getY()), new Point2D(1, 1), false, CurrentSelections.getCurPath().getWaypoints().get(0).isReversed());
+            	    CurrentSelections.getCurPath().getWaypoints().add(newPoint);
+            	    CurrentSelections.getCurPath().recalculateTangents(newPoint);
+            		
+            	}
                 CurrentSelections.getCurPath().update();
             }
         });

@@ -92,7 +92,7 @@ public class DragHandler {
     if (splineDragStarted) {
       handleWaypointDrag(event, path, wp);
     } else {
-      Waypoint cur = path.addWaypoint(new Point2D(event.getX(), event.getY()), CurrentSelections.getCurSplineStart(), CurrentSelections.getCurSplineEnd());
+      Waypoint cur = path.addWaypoint(new Point2D(event.getX(), -event.getY()), CurrentSelections.getCurSplineStart(), CurrentSelections.getCurSplineEnd());
       path.selectWaypoint(cur);
       CurrentSelections.setCurPath(path);
       CurrentSelections.setCurSplineStart(null);
