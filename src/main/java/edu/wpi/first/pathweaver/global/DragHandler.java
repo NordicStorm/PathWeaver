@@ -36,6 +36,7 @@ public class DragHandler {
 
   private void finishDrag() {
     SaveManager.getInstance().addChange(CurrentSelections.getCurPath());
+    SaveManager.getInstance().saveAll();
     splineDragStarted = false;
   }
 
@@ -49,7 +50,7 @@ public class DragHandler {
         handlePathMoveDrag(event, path, wp);
       } else {
         handleWaypointDrag(event, path, wp);
-      }
+      } 
     } else if (dragboard.hasContent(DataFormats.CONTROL_VECTOR)) {
       handleVectorDrag(event, path, wp);
     } else if (dragboard.hasContent(DataFormats.SPLINE)) {

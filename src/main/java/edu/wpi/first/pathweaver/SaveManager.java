@@ -23,6 +23,7 @@ public final class SaveManager {
   }
 
   public void addChange(Path path) {
+	
     paths.add(path);
   }
 
@@ -86,7 +87,7 @@ public final class SaveManager {
    * @param remove Whether to remove Path from set of modified paths.
    */
   private void saveChange(Path path, boolean remove) {
-    String pathDirectory = ProjectPreferences.getInstance().getFileName() + "/Paths/";
+    String pathDirectory = ProjectPreferences.getInstance().getFileName();
     PathIOUtil.export(pathDirectory, path);
     if (remove) {
       paths.remove(path);

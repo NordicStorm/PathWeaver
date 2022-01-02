@@ -13,8 +13,11 @@ import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javafx.geometry.Point2D;
 
@@ -26,73 +29,150 @@ public final class PathIOUtil {
 
 
   /**
-   * Exports path object to csv file.
+   * Writes the path into the file
    *
    * @param fileLocation the directory and filename to write to
-   * @param path         Path object to save
+   * @param path         followable Path object to save
    *
    * @return true if successful file write was preformed
    */
   public static boolean export(String fileLocation, Path path) {
-    try (
-        BufferedWriter writer = Files.newBufferedWriter(Paths.get(fileLocation + path.getPathName()));
+      double height = ProjectPreferences.getInstance().getField().getRealLength().getValue().doubleValue();
 
-        CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT
-            .withHeader("X", "Y", "Tangent X", "Tangent Y", "Fixed Theta", "Reversed", "Name"))
-    ) {
-      for (Waypoint wp : path.getWaypoints()) {
-        double xPos = wp.getX();
-        double yPos = wp.getY();
-        double tangentX = wp.getTangentX();
-        double tangentY = wp.getTangentY();
-        String name = wp.getName();
-        csvPrinter.printRecord(xPos, yPos, tangentX, tangentY, wp.isLockTangent(), wp.isReversed(), name);
+	  List<String> lines = MainIOUtil.readLinesFromFile(fileLocation);
+	  List<String> newLines = new ArrayList<>();
+	  int currentlyDoneWpIndex = 0;
+	  List<Integer> newLineNums = new ArrayList<>();
+	  for(int lineNum=0; lineNum<lines.size(); lineNum++) {
+		  String line = lines.get(lineNum);
+		  boolean edit = false;
+		  
+		  for (int i=0; i<path.getWaypoints().size(); i++){
+			  Waypoint wp = path.getWaypoints().get(i);
+			  if(wp.lineNumber == lineNum) {
+				  double xPos = wp.getX();
+			      double yPos = wp.getY();
+			      String newArgs = String.format("%.3f, %.3f", xPos, height + yPos);
+			      System.out.println("wpnum "+i+" has num "+wp.lineNumber);
+			      System.out.println("line"+"is"+line);
+				  String currentArgs = line.substring(line.indexOf("(")+1, line.indexOf(")"));
+				  line = line.replaceFirst(currentArgs, newArgs);
+				  int numSpaces = line.length()-(line.stripLeading()).length();
+				  newLines.add(line);
+			      newLineNums.add(newLines.size()-1);
+
+				  edit=true;
+				  for (int j = i+1; j<path.getWaypoints().size(); j++){
+					  //System.out.println("checkline"+j);
+					  Waypoint possibleNew = path.getWaypoints().get(j);
+					  if(possibleNew.lineNumber == -1) {
+						  xPos = possibleNew.getX();
+					      yPos = possibleNew.getY();
+					      String newLine = " ".repeat(numSpaces)+String.format("%s.addWaypoint(%.3f, %.3f);", path.getPathName(), xPos, height + yPos);
+					      System.out.println("new"+newLine);
+					      newLines.add(newLine);
+					      i+=1;
+					      newLineNums.add(newLines.size()-1);
+					      
+					      
+					      System.out.println("newnum"+possibleNew.lineNumber);
+					      
+					  }else {
+						  break;
+					  }
+				  }
+				  break;
+				  
+			  }else {
+				  
+			  }
+		      
+		  }
+		  if(!edit) {
+			  newLines.add(line);
+			  
+		  }
+		  
+	  }
+      System.out.println(" ");
+      MainIOUtil.writeLinesToFile(fileLocation, newLines);
+      for(int k =0;k<path.getWaypoints().size();k++) {
+    	  path.getWaypoints().get(k).lineNumber = newLineNums.get(k);
       }
-      csvPrinter.flush();
-    } catch (IOException except) {
-      LOGGER.log(Level.WARNING, "Could not save Path file", except);
-      return false;
-    }
+      //path.getWaypoints().clear();
+      //path.getWaypoints().addAll(loadWaypointsFromFile(fileLocation, path.getPathName()));
+    
     return true;
   }
 
+  public static int countChars(String string, String character) {
+	return string.length() - string.replace(character, "").length();
+	  
+  }
   /**
    * Imports Path object from disk.
    *
-   * @param fileLocation Folder with path file
+   * 
    * @param fileName     Name of path file
+ * @param pathName 
    *
    * @return Path object saved in Path file
    */
-  public static Path importPath(String fileLocation, String fileName) {
-    try(Reader reader = Files.newBufferedReader(java.nio.file.Path.of(fileLocation, fileName));
-        CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT
-                .withFirstRecordAsHeader()
-                .withIgnoreHeaderCase()
-                .withTrim())) {
-      ArrayList<Waypoint> waypoints = new ArrayList<>();
-      for (CSVRecord csvRecord : csvParser) {
-        Point2D position = new Point2D(
-                Double.parseDouble(csvRecord.get("X")),
-                Double.parseDouble(csvRecord.get("Y"))
-        );
-        Point2D tangent = new Point2D(
-                Double.parseDouble(csvRecord.get("Tangent X")),
-                Double.parseDouble(csvRecord.get("Tangent Y"))
-        );
-        boolean locked = Boolean.parseBoolean(csvRecord.get("Fixed Theta"));
-        boolean reversed = Boolean.parseBoolean(csvRecord.get("Reversed"));
-        Waypoint point = new Waypoint(position, tangent, locked, reversed);
-        if (csvRecord.isMapped("Name")) {
-          String name = csvRecord.get("Name");
-          point.setName(name);
-        }
-        waypoints.add(point);
-      }
-      return new WpilibPath(waypoints, fileName);
-    } catch (IOException except) {
-      LOGGER.log(Level.WARNING, "Could not read Path file", except);
-      return null;
-    }
+  public static Path importPath(String fileName, String pathName) {
+	  System.out.println(fileName+","+pathName);
+	  
+	  return new WpilibPath(loadWaypointsFromFile(fileName, pathName), pathName);
+    
+  }
+  public static List<Waypoint> loadWaypointsFromFile(String fileName, String pathName){
+	  String mainMethod = "public void initializeCommands()";
+	  List<String> lines = MainIOUtil.readLinesFromFile(fileName);
+	  pathName = "path";
+	  ArrayList<Waypoint> waypoints = new ArrayList<>();
+	  boolean hasStarted = false;
+	  int braceCount = 0;
+	  for(int lineNum = 0; lineNum<lines.size(); lineNum++) {
+		  String line= lines.get(lineNum);
+		  String content = line.stripLeading();
+		  if(content.contains(mainMethod)) {
+			  hasStarted = true;
+		  }
+		  if(!hasStarted) {continue;}
+		  
+		  
+		  braceCount+=countChars(content, "{") ;
+		  braceCount-=countChars(content, "}") ;
+		  if(braceCount == 0) {
+			  hasStarted = false;
+		  }
+		  if(content.startsWith(pathName+".")) {
+			  String method = content.substring((pathName+".").length());
+			  String methodName = method.substring(0, method.indexOf("("));
+			  String allParams = method.substring(method.indexOf("(")+1, method.indexOf(";")-1); 
+			  int parenCount = countChars(allParams, "(");
+			  if(parenCount>1) {
+				  LOGGER.log(Level.WARNING, "Too complicated line of code: "+line);
+				  continue;
+			  }
+			  String[] rawParams = allParams.split(",");
+			  List<String> params = Arrays.stream(rawParams)
+                      .map(s->s.strip())
+                      .collect(Collectors.toList());
+			  
+			  if(methodName.equals("addWaypoint")) {
+				  double x = Double.parseDouble(params.get(0));
+				  double y = Double.parseDouble(params.get(1));
+			      double height = ProjectPreferences.getInstance().getField().getRealLength().getValue().doubleValue();
+			      
+				  Waypoint point = new Waypoint(new Point2D(x, y - height), new Point2D(1, 1), false, false);
+				 
+			      point.lineNumber = lineNum;
+			      point.numberOfLinesInSection = 0;//TODO
+			      waypoints.add(point);
+			  }
+			  
+		  }
+	  }
+	  return waypoints;
   }
 }

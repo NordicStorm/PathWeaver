@@ -69,6 +69,8 @@ public class FieldDisplayController {
             		Waypoint newPoint = new Waypoint(new Point2D(e.getX(), -e.getY()), new Point2D(1, 1), false, CurrentSelections.getCurPath().getWaypoints().get(0).isReversed());
             	    CurrentSelections.getCurPath().getWaypoints().add(newPoint);
             	    CurrentSelections.getCurPath().recalculateTangents(newPoint);
+            	    SaveManager.getInstance().addChange(CurrentSelections.getCurPath());
+            	    SaveManager.getInstance().saveAll();
             		
             	}
                 CurrentSelections.getCurPath().update();
@@ -107,18 +109,18 @@ public class FieldDisplayController {
     /**
      * Adds a path to the controller.
      *
-     * @param fileLocations The folder containing the path file
+     
      * @param newValue      The TreeItem holding the name of this path
      * @return The new path, or if duplicate, the old path matching the file name
      */
-    public Path addPath(String fileLocations, TreeItem<String> newValue) {
+    public Path addPath(String fileLocation, TreeItem<String> newValue) {
         String fileName = newValue.getValue();
         for (Path path : pathList) {
             if (fileName.equals(path.getPathName())) {
                 return path;
             }
         }
-        Path newPath = PathIOUtil.importPath(fileLocations, fileName);
+        Path newPath = PathIOUtil.importPath(fileLocation, fileName);
         if (newPath == null) {
             newPath = new WpilibPath(fileName);
             SaveManager.getInstance().saveChange(newPath);

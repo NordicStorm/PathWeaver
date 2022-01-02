@@ -37,7 +37,7 @@ import javafx.stage.Stage;
 public class MainController {
   private static final Logger LOGGER = Logger.getLogger(MainController.class.getName());
 
-  @FXML private TreeView<String> autons;
+
   @FXML private TreeView<String> paths;
 
   @FXML private Pane fieldDisplay;
@@ -47,10 +47,7 @@ public class MainController {
   @FXML private EditWaypointController editWaypointController;
 
   private String directory = ProjectPreferences.getInstance().getFileName();
-  private final String pathDirectory = directory + "/Paths/";
-  private final String autonDirectory = directory + "/Autos/";
-  private final String groupDirectory = directory + "/Groups/"; // Legacy dir for backwards compatibility
-  private final TreeItem<String> autonRoot = new TreeItem<>("Autons");
+
   private final TreeItem<String> pathRoot = new TreeItem<>("Paths");
 
   private TreeItem<String> selected = null;
@@ -63,17 +60,13 @@ public class MainController {
   private void initialize() {
     setupDrag();
 
-    setupTreeView(autons, autonRoot, FxUtils.menuItem("New Autonomous...", event -> createAuton()));
     setupTreeView(paths, pathRoot, FxUtils.menuItem("New Path...", event -> createPath()));
 
-
-
+    loadAllPathsInFile(pathRoot);
     setupClickablePaths();
-    setupClickableAutons();
-    loadAllAutons();
+    
 
-    autons.setEditable(true);
-    paths.setEditable(true);
+    paths.setEditable(false);
     setupEditable();
 
     duplicate.disableProperty().bind(CurrentSelections.curPathProperty().isNull());
@@ -91,64 +84,37 @@ public class MainController {
     treeView.setShowRoot(false); // Don't show the roots "Paths" and "Autons" - cleaner appearance
   }
 
-
+  /**
+   * Parse the file to find path names and load the names into the tree view
+   */
+  private void loadAllPathsInFile(TreeItem<String> root) {
+	  List<String> lines = MainIOUtil.readLinesFromFile(directory);
+	  for (String line : lines) {
+		  String keyword = "MultiPartPath ";
+		  if(line.contains(keyword)) {
+			  String name = null;
+			  int equalIndex = line.indexOf("=");
+			  if(equalIndex==-1) {
+				  //no equal, so it is just a declaration
+				  name = line.substring(line.indexOf(keyword)+keyword.length(), line.indexOf(";"));
+			  }else {
+				  
+			  }
+			  
+			  TreeItem<String> item = new TreeItem<>(name);
+			  root.getChildren().add(item);
+		  }
+		  
+	  }
+  }
+  
   private void setupEditable() {
-    autons.setOnEditStart(event -> {
-      if (event.getTreeItem().getParent() != autonRoot) {
-        SaveManager.getInstance().promptSaveAll(false);
-      }
-    });
-    autons.setOnEditCommit(event -> {
-      if (event.getTreeItem().getParent() == autonRoot) {
-        MainIOUtil.rename(autonDirectory, event.getTreeItem(), event.getNewValue());
-        event.getTreeItem().setValue(event.getNewValue());
-      } else {
-        MainIOUtil.rename(pathDirectory, event.getTreeItem(), event.getNewValue());
-        renameAllPathInstances(event.getTreeItem(), event.getNewValue());
-      }
-      saveAllAutons();
-      loadAllAutons();
-    });
-    paths.setOnEditStart(event -> SaveManager.getInstance().promptSaveAll(false));
-    paths.setOnEditCommit(event -> {
-      MainIOUtil.rename(pathDirectory, event.getTreeItem(), event.getNewValue());
-      renameAllPathInstances(event.getTreeItem(), event.getNewValue());
-
-      saveAllAutons();
-      loadAllAutons();
-      fieldDisplayController.removeAllPath();
-      fieldDisplayController.addPath(pathDirectory, event.getTreeItem());
-    });
+    //what to do when the name gets edited
+    
   }
 
-  private void renameAllPathInstances(TreeItem<String> path, String newName) {
-    String oldName = path.getValue();
-
-    for (TreeItem<String> instance : getAllInstances(path)) {
-      instance.setValue(newName);
-    }
-    for (TreeItem<String> potential : pathRoot.getChildren()) {
-      if (oldName.equals(potential.getValue())) {
-        potential.setValue(newName);
-      }
-    }
-  }
-
-
-  private void loadAllAutons() {
-    for (TreeItem<String> item : autonRoot.getChildren()) {
-      MainIOUtil.loadAuton(autonDirectory, item.getValue(), item);
-    }
-  }
-
-  private void saveAllAutons() {
-    for (TreeItem<String> item : autonRoot.getChildren()) {
-      MainIOUtil.saveAuton(autonDirectory, item.getValue(), item);
-    }
-  }
 
   @FXML
-
   private void delete() {
     if (selected == null) {
       // have nothing selected
@@ -159,42 +125,20 @@ public class MainController {
       // clicked impossible thing to delete
       return;
     }
-    if (autonRoot == root) {
-      return;
-    } else if (pathRoot == root && FxUtils.promptDelete(selected.getValue())) {
+    if (pathRoot == root && FxUtils.promptDelete(selected.getValue())) {
       fieldDisplayController.removeAllPath();
       SaveManager.getInstance().removeChange(CurrentSelections.curPathProperty().get());
-      MainIOUtil.deleteItem(pathDirectory, selected);
+      MainIOUtil.deleteItem(directory, selected);
       for (TreeItem<String> path : getAllInstances(selected)) {
         removePath(path);
       }
-      saveAllAutons();
-      loadAllAutons();
+      
     }
   }
 
   @FXML
   private void deleteAuton() {
-    if (selected == null) {
-      // have nothing selected
-      return;
-    }
-    TreeItem<String> root = getRoot(selected);
-    if (selected == root) {
-      // clicked impossible thing to delete
-      return;
-    }
-    if (autonRoot == root) {
-      if (selected.getParent() == autonRoot) {
-        if (FxUtils.promptDelete(selected.getValue())) {
-          MainIOUtil.deleteItem(autonDirectory, selected);
-        }
-      } else {
-        removePath(selected);
-      }
-    } else {
-      return;
-    }
+    
   }
 
   @FXML
@@ -207,20 +151,18 @@ public class MainController {
 
   private List<TreeItem<String>> getAllInstances(TreeItem<String> chosenPath) {
     List<TreeItem<String>> list = new ArrayList<>();
-    for (TreeItem<String> auton : autonRoot.getChildren()) {
+    /*for (TreeItem<String> auton : autonRoot.getChildren()) {
       for (TreeItem<String> path : auton.getChildren()) {
         if (path.getValue().equals(chosenPath.getValue())) {
           list.add(path);
         }
       }
-    }
+    }*/
     return list;
   }
 
   private void removePath(TreeItem<String> path) {
-    TreeItem<String> auton = path.getParent();
-    auton.getChildren().remove(path);
-    MainIOUtil.saveAuton(autonDirectory, auton.getValue(), auton);
+    
   }
 
 
@@ -248,7 +190,7 @@ public class MainController {
             selected = newValue;
             if (newValue != pathRoot && newValue != null) {
               fieldDisplayController.removeAllPath();
-              fieldDisplayController.addPath(pathDirectory, newValue);
+              fieldDisplayController.addPath(directory, newValue);
               CurrentSelections.getCurPath().selectWaypoint(CurrentSelections.getCurPath().getStart());
             }
           }
@@ -257,51 +199,18 @@ public class MainController {
   }
 
 
-  private void setupClickableAutons() {
-    ChangeListener<TreeItem<String>> selectionListener = new ChangeListener<>() {
-      @Override
-      public void changed(ObservableValue<? extends TreeItem<String>> observable, TreeItem<String> oldValue,
-                          TreeItem<String> newValue) {
-        if (newValue == null) {
-          return;
-        }
-        selected = newValue;
-        fieldDisplayController.removeAllPath();
-        if (newValue != autonRoot) {
-          if (newValue.getParent() == autonRoot) { //is an auton with children
-            for (TreeItem<String> it : selected.getChildren()) {
-              fieldDisplayController.addPath(pathDirectory, it).enableSubchildSelector(FxUtils.getItemIndex(it));
-            }
-          } else { //has no children so try to display path
-            Path path = fieldDisplayController.addPath(pathDirectory, newValue);
-            if (FxUtils.isSubChild(autons, newValue)) {
-              path.enableSubchildSelector(FxUtils.getItemIndex(newValue));
-            }
-          }
-        }
-      }
-    };
-    autons.getSelectionModel().selectedItemProperty().addListener(selectionListener);
-  }
+  
 
   private boolean validPathName(String oldName, String newName) {
-    return MainIOUtil.isValidRename(pathDirectory, oldName, newName);
+    return MainIOUtil.isValidRename(directory, oldName, newName);
   }
 
-  private boolean validAutonName(String oldName, String newName) {
-    return MainIOUtil.isValidRename(autonDirectory, oldName, newName);
-  }
+ 
 
 
   private void setupDrag() {
     paths.setCellFactory(param -> new PathCell(false, this::validPathName));
-    autons.setCellFactory(param -> new PathCell(true, this::validAutonName));
-
-    autons.setOnDragDropped(event -> {
-      //simpler than communicating which was updated from the cells
-      saveAllAutons();
-      loadAllAutons();
-    });
+    
   }
 
   @FXML
@@ -316,7 +225,7 @@ public class MainController {
 
   @FXML
   private void duplicate() {
-    Path newPath = fieldDisplayController.duplicate(pathDirectory);
+    Path newPath = fieldDisplayController.duplicate(directory);
     TreeItem<String> stringTreeItem = MainIOUtil.addChild(pathRoot, newPath.getPathName());
     SaveManager.getInstance().saveChange(newPath);
     paths.getSelectionModel().select(stringTreeItem);
@@ -324,7 +233,7 @@ public class MainController {
 
   @FXML
   private void createPath() {
-    String name = MainIOUtil.getValidFileName(pathDirectory, "Unnamed", ".path");
+    String name = MainIOUtil.getValidFileName(directory, "Unnamed", ".path");
     MainIOUtil.addChild(pathRoot, name);
     Path newPath = new WpilibPath(name);
     // The default path defaults to FEET
@@ -332,12 +241,7 @@ public class MainController {
     SaveManager.getInstance().saveChange(newPath);
   }
 
-  @FXML
-  private void createAuton() {
-    String name = MainIOUtil.getValidFileName(autonDirectory, "Unnamed", "");
-    TreeItem<String> auton = MainIOUtil.addChild(autonRoot, name);
-    MainIOUtil.saveAuton(autonDirectory, auton.getValue(), auton);
-  }
+
 
   @FXML
 
@@ -354,7 +258,7 @@ public class MainController {
       LOGGER.log(Level.WARNING, "Could not export to " + output, e);
     }
     for (TreeItem<String> pathName : pathRoot.getChildren()) {
-      Path path = PathIOUtil.importPath(pathDirectory, pathName.getValue());
+      Path path = PathIOUtil.importPath(directory, pathName.getValue());
 
       java.nio.file.Path pathNameFile = output.resolve(path.getPathNameNoExtension());
 

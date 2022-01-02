@@ -224,10 +224,14 @@ public final class MainIOUtil {
 		  File f1 = new File(fileName);
 	      FileWriter fw = new FileWriter(f1);
 	      BufferedWriter out = new BufferedWriter(fw);
-	      for(String s : lines) {
-	           out.write(s);
-	           out.newLine();
+	      for(int i=0; i<lines.size(); i++) {
+	    	  String s = lines.get(i);
+	          out.write(s);
+	          if(i!=lines.size()-1) {
+	        	  out.newLine();
+	          }
 	      }
+	      
 	      out.flush();
 	      out.close();
 	  } catch (Exception ex) {

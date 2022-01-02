@@ -58,7 +58,8 @@ public class WpilibPath extends Path {
         this.spline.addToGroup(this.mainGroup, DEFAULT_SPLINE_SCALE / field.getScale());
         this.mainGroup.getChildren().addAll(this.iconGroup, this.tangentGroup);
         this.waypoints.addAll(points);
-        recalculateTangents(points.get(0));
+        for(Waypoint p:this.waypoints) {recalculateTangents(p);}
+        
         update();
         enableSubchildSelector(subchildIdx);
     }

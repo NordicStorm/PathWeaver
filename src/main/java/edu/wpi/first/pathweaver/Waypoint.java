@@ -33,7 +33,8 @@ public class Waypoint {
 	private final BooleanProperty lockTangent = new SimpleBooleanProperty();
 	private final BooleanProperty reversed = new SimpleBooleanProperty();
 	private final StringProperty name = new SimpleStringProperty("");
-
+	public int lineNumber = -1;
+	public int numberOfLinesInSection = -1;
 	private final Line tangentLine;
 	private final Polygon icon;
 
