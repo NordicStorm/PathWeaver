@@ -131,42 +131,18 @@ public class WpilibSpline extends AbstractSpline {
         try {
             var values = ProjectPreferences.getInstance().getValues();
             var prefs = ProjectPreferences.getInstance();
-            var lengthUnit = prefs.getField().getUnit();
-            double height = prefs.getField().getRealLength().getValue().doubleValue();
-            var maxVelocity = values.getMaxVelocity();
-            var maxAcceleration = values.getMaxAcceleration();
             var trackWidth = values.getTrackWidth();
 
-            // If the export type is different (i.e. meters), then we have to convert it. Otherwise we are good.
-            if (prefs.getValues().getExportUnit() == ProjectPreferences.ExportUnit.METER) {
-                UnitConverter converter = lengthUnit.getConverterTo(PathUnits.METER);
-                height = converter.convert(height);
-                maxVelocity = converter.convert(maxVelocity);
-                maxAcceleration = converter.convert(maxAcceleration);
-                trackWidth = converter.convert(trackWidth);
-            }
+            
 
-            TrajectoryConfig config = new TrajectoryConfig(maxVelocity, maxAcceleration)
-                .setKinematics(new DifferentialDriveKinematics(trackWidth)).setReversed(waypoints.get(0).isReversed());
-            Trajectory traj = trajectoryFromWaypoints(waypoints, config);
-
-            for (int i = 0; i < traj.getStates().size(); ++i) {
-                var st = traj.getStates().get(i);
-                traj.getStates().set(i, new Trajectory.State(
-                    st.timeSeconds, st.velocityMetersPerSecond, st.accelerationMetersPerSecondSq,
-                    new Pose2d(st.poseMeters.getX(), st.poseMeters.getY() + height,
-                        st.poseMeters.getRotation()),
-                    st.curvatureRadPerMeter
-                ));
-            }
-
-            TrajectoryUtil.toPathweaverJson(traj, path.resolveSibling(path.getFileName() + ".wpilib.json"));
+      
+            //TrajectoryUtil.toPathweaverJson(null, path.resolveSibling(path.getFileName() + ".wpilib.json"));
 
             return okay.get();
-        } catch (IOException except) {
+        }finally{}/* catch (IOException except) {
             LOGGER.log(Level.WARNING, "Could not write Spline to file", except);
             return false;
-        }
+        }*/
     }
 
     private static QuinticHermiteSpline[] getQuinticSplinesFromWaypoints(Waypoint[] waypoints) {

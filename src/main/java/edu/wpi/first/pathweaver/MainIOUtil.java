@@ -3,11 +3,15 @@ package edu.wpi.first.pathweaver;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -193,4 +197,42 @@ public final class MainIOUtil {
         LOGGER.log(Level.WARNING, "Could not copy file", e);
     }
   }
+  
+  public static List<String> readLinesFromFile(String fileName) {
+      try {
+          File f1 = new File(fileName);
+          FileReader fr = new FileReader(f1);
+          BufferedReader br = new BufferedReader(fr);
+          
+          List<String> lines = new ArrayList<String>();
+          String line;
+          
+          while ((line = br.readLine()) != null) {
+              lines.add(line);
+          }
+          fr.close();
+          br.close();
+          return lines;
+
+      } catch (Exception ex) {
+          ex.printStackTrace();
+      }
+	return null;
+  }
+  public static void writeLinesToFile(String fileName, List<String> lines) {
+	  try {
+		  File f1 = new File(fileName);
+	      FileWriter fw = new FileWriter(f1);
+	      BufferedWriter out = new BufferedWriter(fw);
+	      for(String s : lines) {
+	           out.write(s);
+	           out.newLine();
+	      }
+	      out.flush();
+	      out.close();
+	  } catch (Exception ex) {
+          ex.printStackTrace();
+      }
+  }
+  
 }

@@ -2,6 +2,7 @@ package edu.wpi.first.pathweaver;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -45,7 +46,7 @@ public class MainController {
   @FXML private GridPane editWaypoint;
   @FXML private EditWaypointController editWaypointController;
 
-  private String directory = ProjectPreferences.getInstance().getDirectory();
+  private String directory = ProjectPreferences.getInstance().getFileName();
   private final String pathDirectory = directory + "/Paths/";
   private final String autonDirectory = directory + "/Autos/";
   private final String groupDirectory = directory + "/Groups/"; // Legacy dir for backwards compatibility
@@ -65,15 +66,7 @@ public class MainController {
     setupTreeView(autons, autonRoot, FxUtils.menuItem("New Autonomous...", event -> createAuton()));
     setupTreeView(paths, pathRoot, FxUtils.menuItem("New Path...", event -> createPath()));
 
-    // Copying files from the old directory name to the new one to maintain backwards compatibility
-    try {
-      MainIOUtil.copyGroupFiles(autonDirectory, groupDirectory);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
 
-    MainIOUtil.setupItemsInDirectory(pathDirectory, pathRoot);
-    MainIOUtil.setupItemsInDirectory(autonDirectory, autonRoot);
 
     setupClickablePaths();
     setupClickableAutons();
@@ -349,11 +342,12 @@ public class MainController {
   @FXML
 
   private void buildPaths() {
+	if(1==1) {return;}//disabled in custom version
     if (!SaveManager.getInstance().promptSaveAll()) {
       return;
     }
 
-    java.nio.file.Path output = ProjectPreferences.getInstance().getOutputDir().toPath();
+    java.nio.file.Path output =  Paths.get(ProjectPreferences.getInstance().getFileName());
     try {
       Files.createDirectories(output);
     } catch (IOException e) {

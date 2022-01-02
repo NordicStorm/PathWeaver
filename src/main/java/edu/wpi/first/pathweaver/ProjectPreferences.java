@@ -5,6 +5,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.google.gson.annotations.SerializedName;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 
@@ -13,7 +15,9 @@ import javax.measure.quantity.Length;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -50,42 +54,37 @@ public class ProjectPreferences {
 		}
 	}
 
-	private static final String FILE_NAME = "pathweaver.json";
-
 	private static ProjectPreferences instance;
 
-	private final String directory;
-
+	private final String fileName;
+	private final String KEYWORD="// !PATHWEAVER_INFO: ";
 	private Values values;
 
-	private ProjectPreferences(String directory) {
-		this.directory = directory;
-		try (BufferedReader reader = Files.newBufferedReader(Paths.get(directory, FILE_NAME))) {
+	private ProjectPreferences(String fileName) {
+		this.fileName = fileName;
+		try {
 			Gson gson = new Gson();
-			values = gson.fromJson(reader, Values.class);
+			List<String> lines = MainIOUtil.readLinesFromFile(fileName);
+			List<String> newLines = new ArrayList<String>();
+			boolean existing = false;
+			for(String line:lines) { 
+				  if(line.startsWith(KEYWORD)) {
+					  String data = line.substring(KEYWORD.length()); 
+					  values = gson.fromJson(data, Values.class);
+					  System.out.println("found with keyword");
+					  break;
+				  }
+			}
+			if(values == null) {
+				System.out.println("not found");
+				setDefaults();
+			}
+			values.outputDir = fileName;
 
 			if (values.gameName == null) {
 				values.gameName = Game.INFINTE_RECHARGE_2020.getName();
 			}
-			if (values.lengthUnit == null) {
-				values.lengthUnit = "METER";
-			}
-
-			if(values.exportUnit == null) {
-				values.exportUnit = "Same as Project";
-
-				Alert alert = new Alert(Alert.AlertType.WARNING);
-				FxUtils.applyDarkMode(alert);
-				alert.setTitle("Export Units Warning");
-				alert.setContentText(
-						"Your project was imported from an older version of PathWeaver, where the exported units were always in the specified units. " +
-								"This causes issues with WPILib trajectory following. Please click on Edit Project and choose an appropriate `Export Unit` setting. " +
-								"It has been defaulted to `Same as Project` for backwards compatibility.");
-				((Stage) alert.getDialogPane().getScene().getWindow()).setAlwaysOnTop(true);
-				alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
-
-				alert.show();
-			}
+			
 		} catch (JsonParseException e) {
 			Alert alert = new Alert(Alert.AlertType.ERROR);
 			FxUtils.applyDarkMode(alert);
@@ -97,28 +96,55 @@ public class ProjectPreferences {
 
 			alert.show();
 			setDefaults();
-		} catch (IOException e) {
-			setDefaults();
 		}
 	}
 
 	private void setDefaults() {
-		values = new Values("FOOT", "Always Meters", 10.0, 60.0, 2.0, Game.INFINTE_RECHARGE_2020.getName(), null);
+		values = new Values(2.0, Game.INFINTE_RECHARGE_2020.getName(), fileName);
 		updateValues();
 	}
 
 	private void updateValues() {
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		try {
-			Files.createDirectories(Paths.get(directory));
+		Gson gson = new GsonBuilder().create();
+		
+		String data = gson.toJson(values);
 
-			try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(directory, FILE_NAME))) {
-				gson.toJson(values, writer);
-			}
-		} catch (IOException e) {
-			Logger log = Logger.getLogger(getClass().getName());
-			log.log(Level.WARNING, "Couldn't update Project Preferences", e);
-		}
+		
+		  List<String> lines = MainIOUtil.readLinesFromFile(fileName);
+		  List<String> newLines = new ArrayList<String>();
+		  boolean existing = false;
+		  for(String line:lines) { // first
+			  if(!existing && line.startsWith(KEYWORD)) {
+				  line = KEYWORD+data;
+				  existing=true;
+			  }
+			  newLines.add(line);
+		  }
+		  if(existing) {
+			  MainIOUtil.writeLinesToFile(fileName, newLines);
+			  return;
+		  }
+		  newLines.clear();
+		  //OK, so we need to place a new keyword location
+		  String spotToPut = "public void initializeCommands()";
+		  for(String line:lines) { // first
+			  
+			  newLines.add(line);
+			  if(!existing && line.contains(spotToPut)) {
+				  String newLine = KEYWORD+data;
+				  newLines.add(newLine); // put the data right after the initializeCommands definition start
+				  existing=true;
+				  
+			  }
+		  }
+		  if(existing) {
+			  MainIOUtil.writeLinesToFile(fileName, newLines);
+			  return;
+		  }
+		  MainIOUtil.writeLinesToFile(fileName, newLines);
+		  Alert alert = new Alert(AlertType.ERROR, "Couldn't find a valid place to store pathweaver info. Please make sure that the file chosen is an AutoWithInit.");
+		  alert.showAndWait();
+			
 	}
 
 	/**
@@ -132,22 +158,22 @@ public class ProjectPreferences {
 		updateValues();
 	}
 
-	public String getDirectory() {
-		return directory;
+	public String getFileName() {
+		return fileName;
 	}
 
 	/**
 	 * Return the singleton instance of ProjectPreferences for a given project
 	 * directory.
 	 *
-	 * @param folder
-	 *            Path to project folder.
+	 * @param name
+	 *            Path to project file.
 	 * @return Singleton instance of ProjectPreferences.
 	 */
 	@SuppressWarnings("PMD.NonThreadSafeSingleton")
-	public static ProjectPreferences getInstance(String folder) {
-		if (instance == null || !instance.directory.equals(folder)) {
-			instance = new ProjectPreferences(folder);
+	public static ProjectPreferences getInstance(String name) {
+		if (instance == null || !instance.fileName.equals(name)) {
+			instance = new ProjectPreferences(name);
 		}
 		return instance;
 	}
@@ -166,8 +192,8 @@ public class ProjectPreferences {
 			instance = null;
 		}
 
-	public static boolean projectExists(String folder) {
-		return Files.exists(Paths.get(folder, FILE_NAME));
+	public static boolean projectExists(String name) {
+		return Files.exists(Paths.get(name));
 	}
 
 	/**
@@ -189,61 +215,17 @@ public class ProjectPreferences {
 		return field;
 	}
 
-	/**
-	 * Returns the folder to output the generated paths to.
-	 *
-	 * @return File object of Folder to output generated paths to.
-	 */
-	public File getOutputDir() {
-		if (values.getOutputDir() == null) {
-			File parentDirectory = new File(directory).getParentFile();
-			return getOutputDir(parentDirectory);
-		} else {
-			File output = new File(directory, values.getOutputDir());
-			return getOutputDir(output);
-		}
-	}
-
-	/**
-	 * Returns the output directory relative to a specified directory. If the
-	 * directory is an FRC project, it returns the proper deploy directory.
-	 * Otherwise it simply returns the output subdirectory.
-	 *
-	 * @param directory
-	 *            Directory to return output directory for.
-	 * @return A File that is the output directory.
-	 */
-	private File getOutputDir(File directory) {
-		if (isFRCProject(directory)) {
-			return getDeployDirectory(directory);
-		} else {
-			return new File(directory, "output");
-		}
-	}
-
-	private File getDeployDirectory(File directory) {
-		return new File(directory, "src/main/deploy/paths");
-	}
-
-	private boolean isFRCProject(File directory) {
-		return new File(directory, "build.gradle").exists();
-	}
 
 	public Values getValues() {
 		return values;
 	}
 
 	public static class Values {
-		@SuppressWarnings("PMD.ImmutableField")
-		private String lengthUnit;
-		@SuppressWarnings("PMD.ImmutableField")
-		private String exportUnit;
-		private final double maxVelocity;
-		private final double maxAcceleration;
+	
 		@SerializedName(value = "trackWidth", alternate = "wheelBase")
 		private final double trackWidth;
 		private String gameName;
-		private final String outputDir;
+		private String outputDir;
 
 		/**
 		 * Constructor for Values of ProjectPreferences.
@@ -262,33 +244,22 @@ public class ProjectPreferences {
 		 * @param outputDir
 		 *            The directory for the output files
 		 */
-		public Values(String lengthUnit, String exportUnit, double maxVelocity, double maxAcceleration,
-				double trackWidth, String gameName, String outputDir) {
-			this.lengthUnit = lengthUnit;
-			this.exportUnit = exportUnit;
-			this.maxVelocity = maxVelocity;
-			this.maxAcceleration = maxAcceleration;
+		public Values(double trackWidth, String gameName, String outputDir) {
+			
 			this.trackWidth = trackWidth;
 			this.gameName = gameName;
 			this.outputDir = outputDir;
 		}
 
 		public Unit<Length> getLengthUnit() {
-			return PathUnits.getInstance().length(this.lengthUnit);
+			return PathUnits.METER;
 		}
 
 		public ExportUnit getExportUnit() {
-			return ExportUnit.fromString(exportUnit);
+			return ExportUnit.METER;
 		}
 
-		public double getMaxVelocity() {
-			return maxVelocity;
-		}
-
-		public double getMaxAcceleration() {
-			return maxAcceleration;
-		}
-
+		
 		public double getTrackWidth() {
 			return trackWidth;
 		}

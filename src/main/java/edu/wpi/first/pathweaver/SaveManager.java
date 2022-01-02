@@ -86,7 +86,7 @@ public final class SaveManager {
    * @param remove Whether to remove Path from set of modified paths.
    */
   private void saveChange(Path path, boolean remove) {
-    String pathDirectory = ProjectPreferences.getInstance().getDirectory() + "/Paths/";
+    String pathDirectory = ProjectPreferences.getInstance().getFileName() + "/Paths/";
     PathIOUtil.export(pathDirectory, path);
     if (remove) {
       paths.remove(path);
