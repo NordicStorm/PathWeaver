@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.google.gson.annotations.SerializedName;
+
+import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
@@ -14,7 +16,9 @@ import javax.measure.Unit;
 import javax.measure.quantity.Length;
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.WatchKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -55,13 +59,29 @@ public class ProjectPreferences {
 	}
 
 	private static ProjectPreferences instance;
-
+	
 	private final String fileName;
 	private final String KEYWORD="// !PATHWEAVER_INFO: ";
 	private Values values;
-
+	private WatchKey fileWatchKey;
+	
 	private ProjectPreferences(String fileName) {
 		this.fileName = fileName;
+		Path directoryPath = Paths.get(fileName).getParent();
+		FileWatcherThread.getInstance().clearAllWatchedDirsAndFiles();
+		FileWatcherThread.getInstance().registerDirectory(directoryPath);
+        FileWatcherThread.getInstance().registerFileCallback(fileName, new Runnable() {
+        	@Override
+            public void run(){
+        		Platform.runLater(new Runnable(){ // has to be on the JavaFx thread.
+					@Override
+					public void run() {		
+						FxUtils.getMainControllerInstance().reloadAllPaths();
+					}
+        		});
+            }
+        });
+
 		try {
 			Gson gson = new Gson();
 			List<String> lines = MainIOUtil.readLinesFromFile(fileName);

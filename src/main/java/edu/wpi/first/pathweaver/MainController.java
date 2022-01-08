@@ -88,17 +88,24 @@ public class MainController {
    * Parse the file to find path names and load the names into the tree view
    */
   private void loadAllPathsInFile(TreeItem<String> root) {
+	  root.getChildren().clear();
 	  List<String> lines = MainIOUtil.readLinesFromFile(directory);
+	  System.out.println("len"+lines.size());
+
 	  for (String line : lines) {
 		  String keyword = "MultiPartPath ";
 		  if(line.contains(keyword)) {
 			  String name = null;
+			  name = line.substring(line.indexOf(keyword)+keyword.length(), line.indexOf(";"));
 			  int equalIndex = line.indexOf("=");
 			  if(equalIndex==-1) {
 				  //no equal, so it is just a declaration
-				  name = line.substring(line.indexOf(keyword)+keyword.length(), line.indexOf(";"));
 			  }else {
-				  
+				  if(name.contains("new ")) { // will be like "path = new MultiPartPath"
+					  name = name.substring(0, equalIndex);
+				  }else {
+				      LOGGER.log(Level.WARNING, "Invalid line for path declaration");
+				  }
 			  }
 			  
 			  TreeItem<String> item = new TreeItem<>(name);
@@ -293,6 +300,17 @@ public class MainController {
 
   public void setDirectory(String directory) {
     this.directory = directory;
+  }
+  
+  public void reloadAllPaths() {
+	  int lastSelection = paths.getSelectionModel().getSelectedIndex();
+	  System.out.println("sel:"+lastSelection);
+	  pathRoot.getChildren().clear();
+	  fieldDisplayController.removeAllPath();
+	  loadAllPathsInFile(pathRoot);
+	  System.out.println("paths:"+paths.getRoot().getChildren().toString());
+
+	  paths.getSelectionModel().clearAndSelect(lastSelection);
   }
 }
 

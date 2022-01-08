@@ -34,7 +34,7 @@ public final class PathIOUtil {
    * @param fileLocation the directory and filename to write to
    * @param path         followable Path object to save
    *
-   * @return true if successful file write was preformed
+   * @return true if successful file write was performed
    */
   public static boolean export(String fileLocation, Path path) {
       double height = ProjectPreferences.getInstance().getField().getRealLength().getValue().doubleValue();
@@ -53,8 +53,7 @@ public final class PathIOUtil {
 				  double xPos = wp.getX();
 			      double yPos = wp.getY();
 			      String newArgs = String.format("%.3f, %.3f", xPos, height + yPos);
-			      System.out.println("wpnum "+i+" has num "+wp.lineNumber);
-			      System.out.println("line"+"is"+line);
+			     
 				  String currentArgs = line.substring(line.indexOf("(")+1, line.indexOf(")"));
 				  line = line.replaceFirst(currentArgs, newArgs);
 				  int numSpaces = line.length()-(line.stripLeading()).length();
@@ -69,13 +68,10 @@ public final class PathIOUtil {
 						  xPos = possibleNew.getX();
 					      yPos = possibleNew.getY();
 					      String newLine = " ".repeat(numSpaces)+String.format("%s.addWaypoint(%.3f, %.3f);", path.getPathName(), xPos, height + yPos);
-					      System.out.println("new"+newLine);
 					      newLines.add(newLine);
 					      i+=1;
 					      newLineNums.add(newLines.size()-1);
 					      
-					      
-					      System.out.println("newnum"+possibleNew.lineNumber);
 					      
 					  }else {
 						  break;
@@ -88,17 +84,24 @@ public final class PathIOUtil {
 			  }
 		      
 		  }
+		  for (int i=0; i<path.getDeletedWaypoints().size(); i++){
+			  Waypoint wp = path.getDeletedWaypoints().get(i);
+			  if(wp.lineNumber == lineNum) {
+				  edit = true; // don't add it to the new version.
+			  }
+		  }
 		  if(!edit) {
 			  newLines.add(line);
 			  
 		  }
 		  
 	  }
-      System.out.println(" ");
       MainIOUtil.writeLinesToFile(fileLocation, newLines);
       for(int k =0;k<path.getWaypoints().size();k++) {
     	  path.getWaypoints().get(k).lineNumber = newLineNums.get(k);
       }
+      path.getDeletedWaypoints().clear();
+      //MainController 
       //path.getWaypoints().clear();
       //path.getWaypoints().addAll(loadWaypointsFromFile(fileLocation, path.getPathName()));
     
@@ -119,7 +122,7 @@ public final class PathIOUtil {
    * @return Path object saved in Path file
    */
   public static Path importPath(String fileName, String pathName) {
-	  System.out.println(fileName+","+pathName);
+	  System.out.println(fileName+", import "+pathName);
 	  
 	  return new WpilibPath(loadWaypointsFromFile(fileName, pathName), pathName);
     
@@ -127,7 +130,6 @@ public final class PathIOUtil {
   public static List<Waypoint> loadWaypointsFromFile(String fileName, String pathName){
 	  String mainMethod = "public void initializeCommands()";
 	  List<String> lines = MainIOUtil.readLinesFromFile(fileName);
-	  pathName = "path";
 	  ArrayList<Waypoint> waypoints = new ArrayList<>();
 	  boolean hasStarted = false;
 	  int braceCount = 0;

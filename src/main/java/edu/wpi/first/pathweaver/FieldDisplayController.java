@@ -101,6 +101,7 @@ public class FieldDisplayController {
         KeyCombination save = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
         if (event.getCode() == KeyCode.DELETE || event.getCode() == KeyCode.BACK_SPACE) {
             curPath.removeWaypoint(CurrentSelections.getCurWaypoint());
+            SaveManager.getInstance().saveChange(curPath);
         } else if (save.match(event)) {
             SaveManager.getInstance().saveChange(curPath);
         }

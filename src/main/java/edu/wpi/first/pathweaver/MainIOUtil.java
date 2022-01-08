@@ -212,6 +212,7 @@ public final class MainIOUtil {
           }
           fr.close();
           br.close();
+          if(lines.size()<1) {throw new RuntimeException("line reader error on "+fileName);}
           return lines;
 
       } catch (Exception ex) {

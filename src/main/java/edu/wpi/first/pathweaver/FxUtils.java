@@ -25,7 +25,7 @@ import javafx.stage.Stage;
 
 public final class FxUtils {
   private static final List<PseudoClass> SUBCHILD_SELECTORS;
-
+  private static MainController mainControllerInstance;
   static {
     PseudoClass[] selectors = new PseudoClass[8];
     for (int i = 0; i < selectors.length; i++) {
@@ -103,7 +103,14 @@ public final class FxUtils {
    */
   public static void loadMainScreen(Scene scene, Class aClass) {
     try {
-      Pane root = FXMLLoader.load(aClass.getResource("main.fxml"));
+    FXMLLoader loader = new FXMLLoader(
+    		  aClass.getResource(
+    		    "main.fxml"
+    		  )
+    		);
+
+      Pane root = loader.load();
+      mainControllerInstance = (MainController) loader.getController();
       Stage primaryStage = (Stage) scene.getWindow();
       primaryStage.resizableProperty().setValue(true);
       primaryStage.setOnCloseRequest(value -> {
@@ -121,6 +128,10 @@ public final class FxUtils {
       final Logger logger = Logger.getLogger(FxUtils.class.getName());
       logger.log(Level.WARNING, "Couldn't load main screen", e);
     }
+  }
+  
+  public static MainController getMainControllerInstance() {
+	  return mainControllerInstance;
   }
 
   /**

@@ -35,6 +35,8 @@ public class PathWeaver extends Application {
     primaryStage.setScene(this.mainScene);
     primaryStage.show();
     Loggers.setupLoggers();
+    FileWatcherThread fileWatcherThread = new FileWatcherThread();
+    fileWatcherThread.start();
   }
 
   /**

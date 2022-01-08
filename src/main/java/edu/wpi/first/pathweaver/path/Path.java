@@ -51,6 +51,8 @@ public abstract class Path {
 
     protected final Field field = ProjectPreferences.getInstance().getField();
     protected final ObservableList<Waypoint> waypoints = new ObservableListWrapper<>(new ArrayList<>());
+    protected final ObservableList<Waypoint> deletedWaypoints = new ObservableListWrapper<>(new ArrayList<>());
+
     protected Group mainGroup = new Group();
 
     protected final Spline spline;
@@ -69,6 +71,9 @@ public abstract class Path {
 
     public List<Waypoint> getWaypoints() {
         return waypoints;
+    }
+    public List<Waypoint> getDeletedWaypoints() {
+        return deletedWaypoints;
     }
 
     /**
@@ -238,6 +243,7 @@ public abstract class Path {
         if (waypoints.size() > 2) {
         	success = waypoints.remove(waypoint);
         }
+        if(success) {deletedWaypoints.add(waypoint);}
         if(wpIndex<0) {wpIndex = 0;} // if we just deleted the first waypoint
         recalculateTangents(getWaypoints().get(wpIndex));
         update();
