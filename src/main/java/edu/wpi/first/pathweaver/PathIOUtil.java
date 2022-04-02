@@ -160,14 +160,16 @@ public final class PathIOUtil {
 			  List<String> params = Arrays.stream(rawParams)
                       .map(s->s.strip())
                       .collect(Collectors.toList());
-			  
+			  System.out.println(method);
+			  System.out.println(params);
+
 			  if(methodName.equals("addWaypoint")) {
 				  double x = Double.parseDouble(params.get(0));
 				  double y = Double.parseDouble(params.get(1));
 			      double height = ProjectPreferences.getInstance().getField().getRealLength().getValue().doubleValue();
 			      
 				  Waypoint point = new Waypoint(new Point2D(x, y - height), new Point2D(1, 1), false, false);
-				 
+				  
 			      point.lineNumber = lineNum;
 			      point.numberOfLinesInSection = 0;//TODO
 			      waypoints.add(point);
@@ -175,6 +177,7 @@ public final class PathIOUtil {
 			  
 		  }
 	  }
+
 	  return waypoints;
   }
 }
