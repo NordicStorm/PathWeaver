@@ -31,7 +31,7 @@ public class Waypoint {
 	private final DoubleProperty tangentX = new SimpleDoubleProperty();
 	private final DoubleProperty tangentY = new SimpleDoubleProperty();
 	private final BooleanProperty lockTangent = new SimpleBooleanProperty();
-	private final BooleanProperty reversed = new SimpleBooleanProperty();
+	private final BooleanProperty fromOutsideCommand = new SimpleBooleanProperty();
 	private final StringProperty name = new SimpleStringProperty("");
 	public int lineNumber = -1;
 	public int numberOfLinesInSection = -1;
@@ -49,9 +49,9 @@ public class Waypoint {
 	 *            If the angle the of the waypoint should be fixed. Used for first
 	 *            and last waypoint
 	 */
-	public Waypoint(Point2D position, Point2D tangentVector, boolean fixedAngle, boolean reverse) {
+	public Waypoint(Point2D position, Point2D tangentVector, boolean fixedAngle) {
 		lockTangent.set(fixedAngle);
-		reversed.set(reverse);
+
 		setCoords(position);
 
 		icon = new Polygon(0.0, SIZE / 3, SIZE, 0.0, 0.0, -SIZE / 3);
@@ -115,15 +115,15 @@ public class Waypoint {
 	}
 
 	public boolean isReversed() {
-		return reversed.get();
+		return fromOutsideCommand.get();
 	}
 
 	public BooleanProperty reversedProperty() {
-		return reversed;
+		return fromOutsideCommand;
 	}
 
 	public void setReversed(boolean reversed) {
-		this.reversed.set(reversed);
+		this.fromOutsideCommand.set(reversed);
 	}
 
 	public Line getTangentLine() {
@@ -229,7 +229,7 @@ public class Waypoint {
 	}
 
 	public Waypoint copy() {
-		return new Waypoint(getCoords(), getTangent(), isLockTangent(), isReversed());
+		return new Waypoint(getCoords(), getTangent(), isLockTangent());
 	}
 
 	@Override

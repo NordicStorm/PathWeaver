@@ -141,7 +141,7 @@ public abstract class Path {
     public Waypoint addWaypoint(Point2D coordinates, Waypoint start, Waypoint end) {
         for (int i = 1; i < waypoints.size(); i++) {
             if (waypoints.get(i - 1).equals(start) && waypoints.get(i).equals(end)) {
-                Waypoint toAdd = new Waypoint(coordinates, new Point2D(0, 0), false, start.isReversed());
+                Waypoint toAdd = new Waypoint(coordinates, new Point2D(0, 0), false);
                 waypoints.add(i, toAdd);
 
                 updateTangent(toAdd);

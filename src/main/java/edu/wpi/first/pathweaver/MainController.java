@@ -74,6 +74,7 @@ public class MainController {
     flipVertical.disableProperty().bind(CurrentSelections.curPathProperty().isNull());
 
     editWaypointController.bindToWaypoint(CurrentSelections.curWaypointProperty(), fieldDisplayController);
+    reloadAllPaths();
   }
 
   private void setupTreeView(TreeView<String> treeView, TreeItem<String> treeRoot, MenuItem newItem) {
@@ -137,7 +138,7 @@ public class MainController {
       return;
     }
     if (pathRoot == root && FxUtils.promptDelete(selected.getValue())) {
-      fieldDisplayController.removeAllPath();
+      //fieldDisplayController.removeAllPath();
       SaveManager.getInstance().removeChange(CurrentSelections.curPathProperty().get());
       MainIOUtil.deleteItem(directory, selected);
       for (TreeItem<String> path : getAllInstances(selected)) {
@@ -192,15 +193,15 @@ public class MainController {
           @Override
           public void changed(ObservableValue<? extends TreeItem<String>> observable, TreeItem<String> oldValue,
                               TreeItem<String> newValue) {
-            if (!SaveManager.getInstance().promptSaveAll()) {
+            /*if (!SaveManager.getInstance().promptSaveAll()) {
               paths.getSelectionModel().selectedItemProperty().removeListener(this);
               paths.getSelectionModel().select(oldValue);
               paths.getSelectionModel().selectedItemProperty().addListener(this);
               return;
-            }
+            }*/
             selected = newValue;
             if (newValue != pathRoot && newValue != null) {
-              fieldDisplayController.removeAllPath();
+              //fieldDisplayController.removeAllPath();
               fieldDisplayController.addPath(directory, newValue);
               CurrentSelections.getCurPath().selectWaypoint(CurrentSelections.getCurPath().getStart());
             }
@@ -312,9 +313,14 @@ public class MainController {
 	  pathRoot.getChildren().clear();
 	  fieldDisplayController.removeAllPath();
 	  loadAllPathsInFile(pathRoot);
-	  System.out.println("paths:"+paths.getRoot().getChildren().toString());
+	  var allPaths = paths.getRoot().getChildren();
+	  System.out.println("paths:"+allPaths.toString());
 
 	  paths.getSelectionModel().clearAndSelect(lastSelection);
+	  for(TreeItem<String> pathName : allPaths) {
+	      fieldDisplayController.addPath(directory, pathName);
+	  }
+
   }
 }
 
