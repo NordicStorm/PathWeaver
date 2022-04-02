@@ -166,7 +166,7 @@ public final class PathIOUtil {
 				  double y = Double.parseDouble(params.get(1));
 			      double height = ProjectPreferences.getInstance().getField().getRealLength().getValue().doubleValue();
 			      
-				  Waypoint point = new Waypoint(new Point2D(x, y - height), new Point2D(1, 1), false, false);
+				  Waypoint point = new Waypoint(new Point2D(x, y - height), new Point2D(1, 1), false);
 				 
 			      point.lineNumber = lineNum;
 			      point.numberOfLinesInSection = 0;//TODO

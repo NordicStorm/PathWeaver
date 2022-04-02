@@ -183,7 +183,7 @@ public class WpilibPath extends Path {
      * @param name          The string name to assign path, also used for naming exported files
      */
     private WpilibPath(Point2D startPos, Point2D endPos, Point2D startTangent, Point2D endTangent, String name) {
-        this(List.of(new Waypoint(startPos, startTangent, false, false), new Waypoint(endPos, endTangent, false, false)), name);
+        this(List.of(new Waypoint(startPos, startTangent, false), new Waypoint(endPos, endTangent, false)), name);
     }
 
     @Override
