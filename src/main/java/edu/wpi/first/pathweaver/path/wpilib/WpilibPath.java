@@ -40,12 +40,7 @@ public class WpilibPath extends Path {
                     setupWaypoint(wp);
                     iconGroup.getChildren().add(wp.getIcon());
                     tangentGroup.getChildren().add(wp.getTangentLine());
-                    if (wp != first) {
-                        wp.reversedProperty().bindBidirectional(first.reversedProperty());
-                    }
-                    wp.reversedProperty().addListener(l -> {
-                        update();
-                    });
+                    
                 }
 
                 for (Waypoint wp : c.getRemoved()) {
@@ -129,9 +124,6 @@ public class WpilibPath extends Path {
         }
 
         
-        if (wp.isReversed()) {
-            wpTangent = wpTangent.multiply(-1);
-        }
         wp.setTangent(wpTangent);
     }
 
@@ -151,8 +143,7 @@ public class WpilibPath extends Path {
                 menu.getItems().add(FxUtils.menuItem("Show control vector",
                         event -> waypoint.getTangentLine().setVisible(true)));
             }
-            menu.getItems().add(FxUtils.menuItem("Reverse Vector",
-                    event -> waypoint.setReversed(!waypoint.isReversed())));
+           
             menu.show(mainGroup.getScene().getWindow(), e.getScreenX(), e.getScreenY());
         });
 

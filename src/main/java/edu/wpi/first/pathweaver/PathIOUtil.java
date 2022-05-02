@@ -52,10 +52,18 @@ public final class PathIOUtil {
 			  if(wp.lineNumber == lineNum) {
 				  double xPos = wp.getX();
 			      double yPos = wp.getY();
-			      String newArgs = String.format("%.3f, %.3f", xPos, height + yPos);
+				  if(wp.isOutsidecommand()){
+					String mainLine = line.substring(0, line.indexOf(";")+1);
+					String newMeta = String.format("//ENDPOS:%.3f,%.3f", xPos, height + yPos);
+
+					line = mainLine + newMeta;
+				  }else{
+					String newArgs = String.format("%.3f, %.3f", xPos, height + yPos);
 			     
-				  String currentArgs = line.substring(line.indexOf("(")+1, line.indexOf(")"));
-				  line = line.replaceFirst(currentArgs, newArgs);
+					String currentArgs = line.substring(line.indexOf("(")+1, line.indexOf(")"));
+					line = line.replaceFirst(currentArgs, newArgs);
+				  }
+			      
 				  int numSpaces = line.length()-(line.stripLeading()).length();
 				  newLines.add(line);
 			      newLineNums.add(newLines.size()-1);
@@ -133,17 +141,39 @@ public final class PathIOUtil {
 	  ArrayList<Waypoint> waypoints = new ArrayList<>();
 	  boolean hasStarted = false;
 	  int braceCount = 0;
+	  int activatedBraceLevel = 1;
 	  for(int lineNum = 0; lineNum<lines.size(); lineNum++) {
 		  String line= lines.get(lineNum);
+
 		  String content = line.stripLeading();
+		  if(content.startsWith("//")){
+			  continue;
+		  }
 		  if(content.contains(mainMethod)) {
 			  hasStarted = true;
 		  }
 		  if(!hasStarted) {continue;}
 		  
-		  
-		  braceCount+=countChars(content, "{") ;
-		  braceCount-=countChars(content, "}") ;
+		  braceCount-=countChars(content, "}");
+		  if(braceCount < activatedBraceLevel){
+			  activatedBraceLevel = braceCount;
+			  System.out.println(content);
+		  }
+		  int openBraceNum = countChars(content, "{");
+		  braceCount+=openBraceNum;
+		  if(openBraceNum>0){
+			  if(braceCount == activatedBraceLevel+1){ 
+				if(content.contains("//path on") || content.contains(mainMethod)){
+					activatedBraceLevel = braceCount;
+				}
+			  }
+		  }
+		  System.out.println("current:"+braceCount);
+
+		  System.out.println("active:"+activatedBraceLevel);
+		  if(braceCount != activatedBraceLevel){
+			continue;
+		  }
 		  if(braceCount == 0) {
 			  hasStarted = false;
 		  }
@@ -153,26 +183,47 @@ public final class PathIOUtil {
 			  String allParams = method.substring(method.indexOf("(")+1, method.indexOf(";")-1); 
 			  int parenCount = countChars(allParams, "(");
 			  if(parenCount>1) {
-				  LOGGER.log(Level.WARNING, "Too complicated line of code: "+line);
-				  continue;
+				  LOGGER.log(Level.WARNING, "Complicated line of code: "+line);
+				  //continue;
 			  }
 			  String[] rawParams = allParams.split(",");
 			  List<String> params = Arrays.stream(rawParams)
                       .map(s->s.strip())
                       .collect(Collectors.toList());
-			  System.out.println(method);
-			  System.out.println(params);
+			 
+			  double height = ProjectPreferences.getInstance().getField().getRealLength().getValue().doubleValue();
 
 			  if(methodName.equals("addWaypoint")) {
 				  double x = Double.parseDouble(params.get(0));
 				  double y = Double.parseDouble(params.get(1));
-			      double height = ProjectPreferences.getInstance().getField().getRealLength().getValue().doubleValue();
 			      
 				  Waypoint point = new Waypoint(new Point2D(x, y - height), new Point2D(1, 1), false);
 				 
 			      point.lineNumber = lineNum;
 			      point.numberOfLinesInSection = 0;//TODO
 			      waypoints.add(point);
+			  }else if(methodName.equals("addSequentialCommand") || methodName.equals("resetPosition")){
+				String metaKey = "//ENDPOS:";
+				int metaIndex = line.indexOf(metaKey);
+				double x = 0;
+				double y = 0;
+				if(metaIndex == -1){
+					x = 0;
+					y = lineNum*0.1; 
+				}else{
+					String info = line.substring(metaIndex+metaKey.length());
+					String[] rawPos = info.split(",");
+					
+					x = Double.parseDouble(rawPos[0]);
+				    y = Double.parseDouble(rawPos[1]);
+			       
+				}
+
+				Waypoint point = new Waypoint(new Point2D(x, y-height), new Point2D(1, 1), true);
+				 
+				point.lineNumber = lineNum;
+				point.numberOfLinesInSection = 0;//TODO
+				waypoints.add(point);
 			  }
 			  
 		  }

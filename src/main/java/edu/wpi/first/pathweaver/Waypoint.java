@@ -8,6 +8,7 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.geometry.Point2D;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
 
@@ -45,12 +46,11 @@ public class Waypoint {
 	 *            x and y coordinates in {@link Waypoint} convention
 	 * @param tangentVector
 	 *            tangent vector in user set units
-	 * @param fixedAngle
-	 *            If the angle the of the waypoint should be fixed. Used for first
-	 *            and last waypoint
+	 * @param outsideCommand
+	 *            
 	 */
-	public Waypoint(Point2D position, Point2D tangentVector, boolean fixedAngle) {
-		lockTangent.set(fixedAngle);
+	public Waypoint(Point2D position, Point2D tangentVector, boolean outsideCommand) {
+		fromOutsideCommand.set(outsideCommand);
 
 		setCoords(position);
 
@@ -87,6 +87,10 @@ public class Waypoint {
 						() -> getTangent() == null ? 0.0 : Math.toDegrees(Math.atan2(-getTangentY(), getTangentX())),
 						tangentX, tangentY));
 		icon.getStyleClass().add("waypoint");
+		if(isOutsidecommand()){
+			icon.getStyleClass().add("outside");
+
+		}
 	}
 
 	/**
@@ -114,16 +118,13 @@ public class Waypoint {
 		this.lockTangent.set(lockTangent);
 	}
 
-	public boolean isReversed() {
+	public boolean isOutsidecommand() {
 		return fromOutsideCommand.get();
 	}
 
-	public BooleanProperty reversedProperty() {
-		return fromOutsideCommand;
-	}
 
-	public void setReversed(boolean reversed) {
-		this.fromOutsideCommand.set(reversed);
+	public void setOutsideCommand(boolean outside) {
+		this.fromOutsideCommand.set(outside);
 	}
 
 	public Line getTangentLine() {
@@ -234,7 +235,7 @@ public class Waypoint {
 
 	@Override
 	public String toString() {
-		return String.format("%s (%f,%f), (%f,%f), %b %b", getName(), getX(), getY(), getTangentX(), getTangentY(), isLockTangent(), isReversed());
+		return String.format("%s (%f,%f), (%f,%f), %b %b", getName(), getX(), getY(), getTangentX(), getTangentY(), isLockTangent(), isOutsidecommand());
 	}
 
 	@Override
@@ -252,6 +253,6 @@ public class Waypoint {
 
 		return x.get() == point.x.get() && y.get() == point.y.get() && tangentX.get() == point.tangentX.get()
 				&& tangentY.get() == point.tangentY.get() && name.get().equals(point.name.get())
-				&& isLockTangent() == point.isLockTangent() && isReversed() == point.isReversed();
+				&& isLockTangent() == point.isLockTangent() && isOutsidecommand() == point.isOutsidecommand();
 	}
 }

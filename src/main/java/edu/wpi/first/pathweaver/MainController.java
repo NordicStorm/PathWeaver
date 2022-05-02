@@ -318,7 +318,7 @@ public class MainController {
 
 	  paths.getSelectionModel().clearAndSelect(lastSelection);
 	  for(TreeItem<String> pathName : allPaths) {
-	      fieldDisplayController.addPath(directory, pathName);
+	      //fieldDisplayController.addPath(directory, pathName);
 	  }
 
   }

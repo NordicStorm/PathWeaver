@@ -53,7 +53,12 @@
 .waypoint:selected {
     -fx-stroke: rgb(255, 241, 173);
 }
-
+.outside {
+    -fx-stroke: #101824;
+    -fx-stroke-width: 2px;
+    -fx-cursor: hand;
+    -fx-fill: rgb(0, 255, 0);
+}
 .pathouter {
     -fx-stroke-line-cap: round;
     -fx-fill: null;
