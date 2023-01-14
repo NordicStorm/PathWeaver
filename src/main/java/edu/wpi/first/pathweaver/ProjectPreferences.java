@@ -102,7 +102,7 @@ public class ProjectPreferences {
 			values.outputDir = fileName;
 
 			if (values.gameName == null) {
-				values.gameName = Game.INFINTE_RECHARGE_2020.getName();
+				values.gameName = Game.DEFAULT_GAME.getName();
 			}
 			
 		} catch (JsonParseException e) {
@@ -120,7 +120,7 @@ public class ProjectPreferences {
 	}
 
 	private void setDefaults() {
-		values = new Values(2.0, Game.INFINTE_RECHARGE_2020.getName(), fileName);
+		values = new Values(2.0, Game.DEFAULT_GAME.getName(), fileName);
 		updateValues();
 	}
 
@@ -224,7 +224,7 @@ public class ProjectPreferences {
 	 */
 	public Field getField() {
 		if (values.getGameName() == null) {
-			values.gameName = Game.DEEP_SPACE_2019.getName();
+			values.gameName = Game.DEFAULT_GAME.getName();
 		}
 		Game game = Game.fromPrettyName(values.gameName);
 		if (game == null) {

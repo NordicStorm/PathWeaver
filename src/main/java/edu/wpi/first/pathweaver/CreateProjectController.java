@@ -88,7 +88,7 @@ public class CreateProjectController {
 		numericFields.forEach(textField -> textField.setTextFormatter(FxUtils.onlyPositiveDoubleText()));
 
 		game.getItems().addAll(Game.getGames());
-		game.getSelectionModel().selectFirst();
+		game.getSelectionModel().select(Game.DEFAULT_GAME);
 		game.converterProperty().setValue(new StringConverter<>() {
 			@Override
 			public String toString(Game object) {
@@ -124,7 +124,11 @@ public class CreateProjectController {
 		create.setText("Create Project");
 		title.setText("Create Project...");
 		cancel.setText("Cancel");
-		game.getSelectionModel().selectFirst();
+		
+		game.getSelectionModel().select(Game.DEFAULT_GAME);
+		
+		export.getSelectionModel().selectFirst();
+
 		trackWidth.setText("");
 		editing = false;
 	}
