@@ -2,16 +2,6 @@ package edu.wpi.first.pathweaver;
 
 import edu.wpi.first.pathweaver.path.Path;
 import edu.wpi.first.pathweaver.path.wpilib.WpilibPath;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVPrinter;
-import org.apache.commons.csv.CSVRecord;
-
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.Reader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,7 +31,6 @@ public final class PathIOUtil {
 
 	  List<String> lines = MainIOUtil.readLinesFromFile(fileLocation);
 	  List<String> newLines = new ArrayList<>();
-	  int currentlyDoneWpIndex = 0;
 	  List<Integer> newLineNums = new ArrayList<>();
 	  for(int lineNum=0; lineNum<lines.size(); lineNum++) {
 		  String line = lines.get(lineNum);
@@ -157,7 +146,6 @@ public final class PathIOUtil {
 		  braceCount-=countChars(content, "}");
 		  if(braceCount < activatedBraceLevel){
 			  activatedBraceLevel = braceCount;
-			  System.out.println(content);
 		  }
 		  int openBraceNum = countChars(content, "{");
 		  braceCount+=openBraceNum;
@@ -168,9 +156,6 @@ public final class PathIOUtil {
 				}
 			  }
 		  }
-		  System.out.println("current:"+braceCount);
-
-		  System.out.println("active:"+activatedBraceLevel);
 		  if(braceCount != activatedBraceLevel){
 			continue;
 		  }
@@ -203,7 +188,7 @@ public final class PathIOUtil {
 			      point.numberOfLinesInSection = 0;//TODO
 			      waypoints.add(point);
 			  }else if(methodName.equals("addSequentialCommand") || methodName.equals("resetPosition")){
-				String metaKey = "// ENDPOS:";
+				String metaKey = "ENDPOS:";
 				int metaIndex = line.indexOf(metaKey);
 				double x = 0;
 				double y = 0;

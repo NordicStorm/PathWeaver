@@ -92,7 +92,7 @@ public class WpilibSpline extends AbstractSpline {
 
             seg.getLine().strokeWidthProperty().bind(strokeWidth);
             seg.getOuterLine().strokeWidthProperty().set(prefs.getTrackWidth());
-
+        
             FxUtils.enableSubchildSelector(seg.getLine(), subchildIdx);
             
             seg.getLine().applyCss();

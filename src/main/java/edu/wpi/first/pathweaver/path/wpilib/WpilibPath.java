@@ -205,7 +205,7 @@ public class WpilibPath extends Path {
         }
         return new WpilibPath(waypoints, newName);
     }
-
+    
     @Override
     public boolean equals(Object o) {
         if (this == o) {

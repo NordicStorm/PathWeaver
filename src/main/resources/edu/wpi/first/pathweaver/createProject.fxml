@@ -58,7 +58,7 @@
             </buttons>
          </ButtonBar>
          <Label text="Game" GridPane.rowIndex="2"/>
-         <Label fx:id="outputLabel" text="Output Directory" GridPane.rowIndex="1"/>
+         <Label fx:id="outputLabel" text="Java File" GridPane.rowIndex="1"/>
       </GridPane>
    </children>
 </VBox>

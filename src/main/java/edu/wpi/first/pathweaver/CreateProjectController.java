@@ -127,8 +127,6 @@ public class CreateProjectController {
 		
 		game.getSelectionModel().select(Game.DEFAULT_GAME);
 		
-		export.getSelectionModel().selectFirst();
-
 		trackWidth.setText("");
 		editing = false;
 	}

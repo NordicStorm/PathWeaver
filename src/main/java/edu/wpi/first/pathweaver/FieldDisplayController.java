@@ -5,6 +5,7 @@ import edu.wpi.first.pathweaver.global.DragHandler;
 import edu.wpi.first.pathweaver.path.Path;
 import edu.wpi.first.pathweaver.path.wpilib.WpilibPath;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.DoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -40,7 +41,7 @@ public class FieldDisplayController {
     private Field field;
 
     private final ObservableList<Path> pathList = FXCollections.observableArrayList();
-
+    private DoubleProperty screenScale;
     @FXML
     private void initialize() {
         field = ProjectPreferences.getInstance().getField();
@@ -146,8 +147,11 @@ public class FieldDisplayController {
         drawPane.setLayoutY(field.getCoord().getY());
         drawPane.setScaleX(field.getScale());
         drawPane.setScaleY(field.getScale());
+        screenScale = drawPane.scaleXProperty();
     }
-
+    public DoubleProperty getScreenScale(){
+        return screenScale;
+    }
     /**
      * Flip the current path.
      *
