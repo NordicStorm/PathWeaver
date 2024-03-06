@@ -54,7 +54,7 @@ public final class PathIOUtil {
 			      double yPos = wp.getY();
 				  if(wp.isOutsidecommand()){
 					String mainLine = line.substring(0, line.indexOf(";")+1);
-					String newMeta = String.format("//ENDPOS:%.3f,%.3f", xPos, height + yPos);
+					String newMeta = String.format("// ENDPOS:%.3f,%.3f", xPos, height + yPos);
 
 					line = mainLine + newMeta;
 				  }else{
@@ -163,7 +163,7 @@ public final class PathIOUtil {
 		  braceCount+=openBraceNum;
 		  if(openBraceNum>0){
 			  if(braceCount == activatedBraceLevel+1){ 
-				if(content.contains("//path on") || content.contains(mainMethod)){
+				if(!content.contains("path off") || content.contains(mainMethod)){
 					activatedBraceLevel = braceCount;
 				}
 			  }
@@ -203,7 +203,7 @@ public final class PathIOUtil {
 			      point.numberOfLinesInSection = 0;//TODO
 			      waypoints.add(point);
 			  }else if(methodName.equals("addSequentialCommand") || methodName.equals("resetPosition")){
-				String metaKey = "//ENDPOS:";
+				String metaKey = "// ENDPOS:";
 				int metaIndex = line.indexOf(metaKey);
 				double x = 0;
 				double y = 0;

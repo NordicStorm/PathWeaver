@@ -18,6 +18,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 
 @SuppressWarnings("PMD.UnusedPrivateMethod")
 public class WelcomeController {
@@ -35,9 +36,9 @@ public class WelcomeController {
         ProgramPreferences.getInstance().getRecentProjects());
 
     projects.setOnMouseClicked(event -> {
-      String folder = projects.getSelectionModel().getSelectedItem();
-      if (folder != null) {
-        loadProject(folder);
+      String filePath = projects.getSelectionModel().getSelectedItem();
+      if (filePath != null) {
+        loadProject(filePath);
       }
     });
   }
@@ -54,17 +55,17 @@ public class WelcomeController {
     }
   }
 
-  private void loadProject(String folder) {
-    if (ProjectPreferences.projectExists(folder)) {
-      ProgramPreferences.getInstance().addProject(folder);
-      ProjectPreferences.getInstance(folder);
+  private void loadProject(String filePath) {
+    if (ProjectPreferences.projectExists(filePath)) {
+      ProgramPreferences.getInstance().addProject(filePath);
+      ProjectPreferences.getInstance(filePath);
       FxUtils.loadMainScreen(borderPane.getScene(), getClass());
     } else {
-      invalidProject(folder);
+      invalidProject(filePath);
     }
   }
 
-  private void invalidProject(String folder) {
+  private void invalidProject(String filePath) {
     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
     FxUtils.applyDarkMode(alert);
     alert.setTitle("Project Does Not Exist!");
@@ -76,19 +77,19 @@ public class WelcomeController {
     alert.getButtonTypes().setAll(recreate, remove, nothing);
     Optional<ButtonType> result = alert.showAndWait();
     if (result.get() == recreate) {
-      ProjectPreferences.getInstance(folder);
+      ProjectPreferences.getInstance(filePath);
       createProject();
     } else if (result.get() == remove) {
-      ProgramPreferences.getInstance().removeProject(folder);
-      projects.getItems().remove(folder);
+      ProgramPreferences.getInstance().removeProject(filePath);
+      projects.getItems().remove(filePath);
     }
   }
 
   @FXML
   private void importProject() {
-    DirectoryChooser chooser = new DirectoryChooser();
+    FileChooser chooser = new FileChooser();
     File selectedDirectory =
-        chooser.showDialog(borderPane.getScene().getWindow());
+        chooser.showOpenDialog(borderPane.getScene().getWindow());
     if (selectedDirectory != null) {
       ProgramPreferences.getInstance().addProject(selectedDirectory.getPath());
       loadProject(selectedDirectory.getPath());
