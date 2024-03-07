@@ -29,7 +29,7 @@ To run PathWeaver use the command `./gradlew run`
 
         @Override
         public void initializeCommands() {
-            // !PATHWEAVER_INFO: {"trackWidth":0.7,"gameName":"Crescendo"}
+            // !PATHWEAVER_INFO: {"trackWidth":0.762,"gameName":"Crescendo"}
             boolean doLastPart = SmartDashboard.getBoolean("DoLastPart?", true);
             RobotContainer.drivetrain.resetAngle();
 
@@ -39,7 +39,7 @@ To run PathWeaver use the command `./gradlew run`
             config.maxCentripetalAcceleration = 11;
             config.maxAngularAcceleration = 8;
             config.maxAnglularVelocity = 12;
-            
+
             MultiPartPath pathA = new MultiPartPath(RobotContainer.drivetrain, config, null);
             pathA.resetPosition(0.350, 7.000);
             pathA.addWaypoint(2.050, 7.000);
