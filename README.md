@@ -10,6 +10,45 @@ For bugs or feature suggestions, make a github issue.
 
 To run PathWeaver use the command `./gradlew run`
 
-
 ### Requirements
 - [JDK 11](https://adoptopenjdk.net/)
+
+## Example Auto Program
+
+    package frc.robot.commands;
+
+    import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+    import frc.robot.RobotContainer;
+    import frc.robot.commands.paths.DrivetrainConfig;
+    import frc.robot.commands.paths.MultiPartPath;
+
+    public class ExampleAuto extends AutoWithInit {
+
+        public ExampleAuto() {
+        }
+
+        @Override
+        public void initializeCommands() {
+            // !PATHWEAVER_INFO: {"trackWidth":0.7,"gameName":"Crescendo"}
+            boolean doLastPart = SmartDashboard.getBoolean("DoLastBall?", true);
+            RobotContainer.drivetrain.resetAngle();
+
+            DrivetrainConfig config = RobotContainer.drivetrain.getConfig().makeClone();
+            config.maxVelocity = 4;
+            config.maxAcceleration = 4;
+            config.maxCentripetalAcceleration = 11;
+            config.maxAngularAcceleration = 8;
+            config.maxAnglularVelocity = 12;
+            MultiPartPath pathA = new MultiPartPath(RobotContainer.drivetrain, config, null);
+            pathA.resetPosition(0.350, 7.000);
+            pathA.addWaypoint(2.050, 7.000);
+            pathA.addSequentialCommand(new FollowBall());// ENDPOS:4.202,6.912
+            if (doLastPart) {// path on
+                pathA.addWaypoint(4.430, 5.364);
+                pathA.addWaypoint(3.086, 4.931);
+                pathA.addSequentialCommand(new TurnAndShoot());// ENDPOS:2.904,4.931
+            }
+            pathA.addStop();
+            addCommands(pathA.finalizePath());
+        }
+    }

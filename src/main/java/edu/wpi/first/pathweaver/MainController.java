@@ -128,15 +128,15 @@ public class MainController {
 		  if(line.contains(keyword)) {
 			  String name = null;
 			  name = line.substring(line.indexOf(keyword)+keyword.length(), line.indexOf(";"));
-        System.out.println("name"+name);
+        //System.out.println("name"+name);
 
         int equalIndex = name.indexOf("=");
 			  if(equalIndex==-1) {
 				  //no equal, so it is just a declaration
 			  }else {
 				  if(name.contains("new ")) { // will be like "path = new MultiPartPath"
-					  name = name.substring(0, equalIndex);
-            System.out.println("name2"+name);
+					  name = name.substring(0, equalIndex).strip();
+            //System.out.println("name2"+name);
 
 				  }else {
 				      LOGGER.log(Level.WARNING, "Invalid line for path declaration");

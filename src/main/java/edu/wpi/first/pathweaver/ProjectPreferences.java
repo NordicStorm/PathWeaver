@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 public class ProjectPreferences {
 	public enum ExportUnit {
 		METER("Always Meters"), SAME("Same as Project");
+
 		private static final Map<String, ExportUnit> STRING_EXPORT_UNIT_MAP;
 
 		private final String name;
@@ -59,43 +60,41 @@ public class ProjectPreferences {
 	}
 
 	private static ProjectPreferences instance;
-	
+
 	private final String fileName;
-	private final String KEYWORD="// !PATHWEAVER_INFO: ";
+	private final String KEYWORD = "// !PATHWEAVER_INFO: ";
 	private Values values;
 	private WatchKey fileWatchKey;
-	
+
 	private ProjectPreferences(String fileName) {
 		this.fileName = fileName;
 		Path directoryPath = Paths.get(fileName).getParent();
 		FileWatcherThread.getInstance().clearAllWatchedDirsAndFiles();
 		FileWatcherThread.getInstance().registerDirectory(directoryPath);
-        FileWatcherThread.getInstance().registerFileCallback(fileName, new Runnable() {
-        	@Override
-            public void run(){
-        		Platform.runLater(new Runnable(){ // has to be on the JavaFx thread.
+		FileWatcherThread.getInstance().registerFileCallback(fileName, new Runnable() {
+			@Override
+			public void run() {
+				Platform.runLater(new Runnable() { // has to be on the JavaFx thread.
 					@Override
-					public void run() {		
+					public void run() {
 						FxUtils.getMainControllerInstance().reloadAllPaths();
 					}
-        		});
-            }
-        });
+				});
+			}
+		});
 
 		try {
 			Gson gson = new Gson();
 			List<String> lines = MainIOUtil.readLinesFromFile(fileName);
-			List<String> newLines = new ArrayList<String>();
-			boolean existing = false;
-			for(String line:lines) { 
-				  if(line.startsWith(KEYWORD)) {
-					  String data = line.substring(KEYWORD.length()); 
-					  values = gson.fromJson(data, Values.class);
-					  System.out.println("found with keyword");
-					  break;
-				  }
+			for (String line : lines) {
+				if (line.contains(KEYWORD)) {
+					String data = line.substring(line.indexOf(KEYWORD)+KEYWORD.length());
+					values = gson.fromJson(data, Values.class);
+					System.out.println("found with keyword");
+					break;
+				}
 			}
-			if(values == null) {
+			if (values == null) {
 				System.out.println("not found");
 				setDefaults();
 			}
@@ -104,7 +103,7 @@ public class ProjectPreferences {
 			if (values.gameName == null) {
 				values.gameName = Game.DEFAULT_GAME.getName();
 			}
-			
+
 		} catch (JsonParseException e) {
 			Alert alert = new Alert(Alert.AlertType.ERROR);
 			FxUtils.applyDarkMode(alert);
@@ -126,52 +125,52 @@ public class ProjectPreferences {
 
 	private void updateValues() {
 		Gson gson = new GsonBuilder().create();
-		
+
 		String data = gson.toJson(values);
 
-		
-		  List<String> lines = MainIOUtil.readLinesFromFile(fileName);
-		  List<String> newLines = new ArrayList<String>();
-		  boolean existing = false;
-		  for(String line:lines) { // first
-			  if(!existing && line.startsWith(KEYWORD)) {
-				  line = KEYWORD+data;
-				  existing=true;
-			  }
-			  newLines.add(line);
-		  }
-		  if(existing) {
-			  MainIOUtil.writeLinesToFile(fileName, newLines);
-			  return;
-		  }
-		  newLines.clear();
-		  //OK, so we need to place a new keyword location
-		  String spotToPut = "public void initializeCommands()";
-		  for(String line:lines) { // first
-			  
-			  newLines.add(line);
-			  if(!existing && line.contains(spotToPut)) {
-				  String newLine = KEYWORD+data;
-				  newLines.add(newLine); // put the data right after the initializeCommands definition start
-				  existing=true;
-				  
-			  }
-		  }
-		  if(existing) {
-			  MainIOUtil.writeLinesToFile(fileName, newLines);
-			  return;
-		  }
-		  MainIOUtil.writeLinesToFile(fileName, newLines);
-		  Alert alert = new Alert(AlertType.ERROR, "Couldn't find a valid place to store pathweaver info. Please make sure that the file chosen is an AutoWithInit.");
-		  alert.showAndWait();
-			
+		List<String> lines = MainIOUtil.readLinesFromFile(fileName);
+		List<String> newLines = new ArrayList<String>();
+		boolean existing = false;
+		for (String line : lines) { // first
+			if (!existing && line.startsWith(KEYWORD)) {
+				line = KEYWORD + data;
+				existing = true;
+			}
+			newLines.add(line);
+		}
+		if (existing) {
+			MainIOUtil.writeLinesToFile(fileName, newLines);
+			return;
+		}
+		newLines.clear();
+		// OK, so we need to place a new keyword location
+		String spotToPut = "public void initializeCommands()";
+		for (String line : lines) { // first
+
+			newLines.add(line);
+			if (!existing && line.contains(spotToPut)) {
+				String newLine = KEYWORD + data;
+				newLines.add(newLine); // put the data right after the initializeCommands definition start
+				existing = true;
+
+			}
+		}
+		if (existing) {
+			MainIOUtil.writeLinesToFile(fileName, newLines);
+			return;
+		}
+		MainIOUtil.writeLinesToFile(fileName, newLines);
+		Alert alert = new Alert(AlertType.ERROR,
+				"Couldn't find a valid place to store pathweaver info. Please make sure that the file chosen is an AutoWithInit.");
+		alert.showAndWait();
+
 	}
 
 	/**
 	 * Sets the preferences for the current project.
 	 *
 	 * @param values
-	 *            Values to set for preferences.
+	 *               Values to set for preferences.
 	 */
 	public void setValues(Values values) {
 		this.values = values;
@@ -187,7 +186,7 @@ public class ProjectPreferences {
 	 * directory.
 	 *
 	 * @param name
-	 *            Path to project file.
+	 *             Path to project file.
 	 * @return Singleton instance of ProjectPreferences.
 	 */
 	@SuppressWarnings("PMD.NonThreadSafeSingleton")
@@ -209,8 +208,8 @@ public class ProjectPreferences {
 	}
 
 	public static void resetInstance() {
-			instance = null;
-		}
+		instance = null;
+	}
 
 	public static boolean projectExists(String name) {
 		return Files.exists(Paths.get(name));
@@ -235,37 +234,38 @@ public class ProjectPreferences {
 		return field;
 	}
 
-
 	public Values getValues() {
 		return values;
 	}
 
 	public static class Values {
-	
+
 		@SerializedName(value = "trackWidth", alternate = "wheelBase")
 		private final double trackWidth;
 		private String gameName;
-		private String outputDir;
+		private transient String outputDir;
 
 		/**
 		 * Constructor for Values of ProjectPreferences.
 		 *
 		 * @param lengthUnit
-		 *            The unit to use for distances
+		 *                        The unit to use for distances
 		 * @param maxVelocity
-		 *            The maximum velocity the body is capable of travelling at
+		 *                        The maximum velocity the body is capable of travelling
+		 *                        at
 		 * @param maxAcceleration
-		 *            The maximum acceleration to use
+		 *                        The maximum acceleration to use
 		 * @param trackWidth
-		 *            The width between the center of each tire of the drivebase.  Even better would be a calculated
-		 *            track width from robot characterization.
+		 *                        The width between the center of each tire of the
+		 *                        drivebase. Even better would be a calculated
+		 *                        track width from robot characterization.
 		 * @param gameName
-		 *            The year/FRC game
+		 *                        The year/FRC game
 		 * @param outputDir
-		 *            The directory for the output files
+		 *                        The directory for the output files
 		 */
 		public Values(double trackWidth, String gameName, String outputDir) {
-			
+
 			this.trackWidth = trackWidth;
 			this.gameName = gameName;
 			this.outputDir = outputDir;
@@ -279,7 +279,6 @@ public class ProjectPreferences {
 			return ExportUnit.METER;
 		}
 
-		
 		public double getTrackWidth() {
 			return trackWidth;
 		}
