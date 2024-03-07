@@ -100,16 +100,12 @@ public class WpilibSpline extends AbstractSpline {
 
             group.getChildren().add(seg.getOuterLine());
             group.getChildren().add(seg.getLine()); // this has to come after the above for clicking to work
-            
-		  
-            
-
         }
     }
 
     @Override
     public void addToGroup(Group splineGroup, double scaleFactor) {
-        strokeWidth.set(scaleFactor*0.5);
+        strokeWidth.set(scaleFactor*3);
         splineGroup.getChildren().add(group);
         group.toBack();
     }
