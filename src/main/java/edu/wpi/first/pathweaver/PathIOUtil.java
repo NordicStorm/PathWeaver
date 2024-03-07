@@ -41,7 +41,7 @@ public final class PathIOUtil {
 			  if(wp.lineNumber == lineNum) {
 				  double xPos = wp.getX();
 			      double yPos = wp.getY();
-				  if(wp.isOutsidecommand()){
+				  if(wp.isOutsidecommand() && !line.contains("resetPosition")){
 					String mainLine = line.substring(0, line.indexOf(";")+1);
 					String newMeta = String.format("// ENDPOS:%.3f,%.3f", xPos, height + yPos);
 
@@ -107,7 +107,6 @@ public final class PathIOUtil {
 
   public static int countChars(String string, String character) {
 	return string.length() - string.replace(character, "").length();
-	  
   }
   /**
    * Imports Path object from disk.
@@ -122,7 +121,6 @@ public final class PathIOUtil {
 	  System.out.println(fileName+", import "+pathName);
 	  
 	  return new WpilibPath(loadWaypointsFromFile(fileName, pathName), pathName);
-    
   }
   public static List<Waypoint> loadWaypointsFromFile(String fileName, String pathName){
 	  String mainMethod = "public void initializeCommands()";
@@ -132,7 +130,7 @@ public final class PathIOUtil {
 	  int braceCount = 0;
 	  int activatedBraceLevel = 1;
 	  for(int lineNum = 0; lineNum<lines.size(); lineNum++) {
-		  String line= lines.get(lineNum);
+		  String line = lines.get(lineNum);
 
 		  String content = line.stripLeading();
 		  if(content.startsWith("//")){
@@ -162,8 +160,11 @@ public final class PathIOUtil {
 		  if(braceCount == 0) {
 			  hasStarted = false;
 		  }
-		  if(content.startsWith(pathName+".")) {
-			  String method = content.substring((pathName+".").length());
+		  if(content.startsWith(pathName+".")) { // maybe || content.contains(".setPose")
+			  String method = "";
+			  if(content.startsWith(pathName+".")) method = content.substring((pathName+".").length());
+			  if(content.contains(".setPose")) method = content.substring(content.indexOf(".setPose")+1);
+			  System.out.println(method);
 			  String methodName = method.substring(0, method.indexOf("("));
 			  String allParams = method.substring(method.indexOf("(")+1, method.indexOf(";")-1); 
 			  int parenCount = countChars(allParams, "(");
@@ -171,23 +172,24 @@ public final class PathIOUtil {
 				  LOGGER.log(Level.WARNING, "Complicated line of code: "+line);
 				  //continue;
 			  }
-			  String[] rawParams = allParams.split(",");
+			  String[] rawParams = allParams.split(",\\s*(?![^()]*\\))");
 			  List<String> params = Arrays.stream(rawParams)
                       .map(s->s.strip())
                       .collect(Collectors.toList());
 			 
 			  double height = ProjectPreferences.getInstance().getField().getRealLength().getValue().doubleValue();
 
-			  if(methodName.equals("addWaypoint")) {
+			  if(methodName.equals("addWaypoint") || methodName.equals("resetPosition")) {
 				  double x = Double.parseDouble(params.get(0));
 				  double y = Double.parseDouble(params.get(1));
 			      
-				  Waypoint point = new Waypoint(new Point2D(x, y - height), new Point2D(1, 1), false);
+				  Waypoint point = new Waypoint(new Point2D(x, y - height), new Point2D(1, 1), methodName.equals("resetPosition"));
 				 
 			      point.lineNumber = lineNum;
 			      point.numberOfLinesInSection = 0;//TODO
+				  point.setName(methodName);
 			      waypoints.add(point);
-			  }else if(methodName.equals("addSequentialCommand") || methodName.equals("resetPosition")){
+			  } else if(methodName.equals("addSequentialCommand") || methodName.equals("resetPosition")){
 				String metaKey = "ENDPOS:";
 				int metaIndex = line.indexOf(metaKey);
 				double x = 0;
@@ -205,7 +207,9 @@ public final class PathIOUtil {
 				}
 
 				Waypoint point = new Waypoint(new Point2D(x, y-height), new Point2D(1, 1), true);
-				 
+				if(methodName.equals("addSequentialCommand")){
+					point.setName(params.get(0));
+				}
 				point.lineNumber = lineNum;
 				point.numberOfLinesInSection = 0;//TODO
 				waypoints.add(point);

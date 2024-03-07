@@ -9,6 +9,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Control;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.util.converter.NumberStringConverter;
@@ -19,7 +20,8 @@ public class EditWaypointController {
   private TextField xPosition;
   @FXML
   private TextField yPosition;
-
+  @FXML
+  private Label nameLabel;
 
   private List<Control> controls;
   private ChangeListener<String> nameListener;
@@ -106,6 +108,7 @@ public class EditWaypointController {
     controls.forEach(control -> control.setDisable(true));
     disableDoubleBinding(xPosition, oldValue.xProperty());
     disableDoubleBinding(yPosition, oldValue.yProperty());
+    nameLabel.textProperty().set("");
   }
 
   private void bind(Waypoint newValue) {
@@ -113,6 +116,7 @@ public class EditWaypointController {
 
     enableDoubleBinding(xPosition, newValue.xProperty());
     yDoubleBinding(yPosition, newValue.yProperty());
+    nameLabel.textProperty().set(newValue.getName());
     
   }
 

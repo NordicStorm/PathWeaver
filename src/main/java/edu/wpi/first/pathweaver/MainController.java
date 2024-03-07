@@ -92,8 +92,38 @@ public class MainController {
 	  root.getChildren().clear();
 	  List<String> lines = MainIOUtil.readLinesFromFile(directory);
 	  System.out.println("len"+lines.size());
-
+    boolean hasStarted = false;
+	  int braceCount = 0;
+	  int activatedBraceLevel = 1;
+    String mainMethod = "public void initializeCommands()";
 	  for (String line : lines) {
+      if(line.startsWith("//")){
+			  continue;
+		  }
+		  if(line.contains(mainMethod)) {
+			  hasStarted = true;
+		  }
+		  if(!hasStarted) {continue;}
+		  
+		  braceCount-= PathIOUtil.countChars(line, "}");
+		  if(braceCount < activatedBraceLevel){
+			  activatedBraceLevel = braceCount;
+		  }
+		  int openBraceNum = PathIOUtil.countChars(line, "{");
+		  braceCount+=openBraceNum;
+		  if(openBraceNum>0){
+			  if(braceCount == activatedBraceLevel+1){ 
+				if(!line.contains("path off") || line.contains(mainMethod)){
+					activatedBraceLevel = braceCount;
+				}
+			  }
+		  }
+		  if(braceCount != activatedBraceLevel){
+			continue;
+		  }
+		  if(braceCount == 0) {
+			  hasStarted = false;
+		  }
 		  String keyword = "MultiPartPath ";
 		  if(line.contains(keyword)) {
 			  String name = null;

@@ -29,5 +29,6 @@
     <Label text="Y" GridPane.rowIndex="1"/>
     <TextField GridPane.columnIndex="1" fx:id="xPosition"/>
     <TextField fx:id="yPosition" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+    <Label fx:id="nameLabel" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
 </GridPane>
