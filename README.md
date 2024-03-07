@@ -30,7 +30,7 @@ To run PathWeaver use the command `./gradlew run`
         @Override
         public void initializeCommands() {
             // !PATHWEAVER_INFO: {"trackWidth":0.7,"gameName":"Crescendo"}
-            boolean doLastPart = SmartDashboard.getBoolean("DoLastBall?", true);
+            boolean doLastPart = SmartDashboard.getBoolean("DoLastPart?", true);
             RobotContainer.drivetrain.resetAngle();
 
             DrivetrainConfig config = RobotContainer.drivetrain.getConfig().makeClone();
@@ -39,10 +39,11 @@ To run PathWeaver use the command `./gradlew run`
             config.maxCentripetalAcceleration = 11;
             config.maxAngularAcceleration = 8;
             config.maxAnglularVelocity = 12;
+            
             MultiPartPath pathA = new MultiPartPath(RobotContainer.drivetrain, config, null);
             pathA.resetPosition(0.350, 7.000);
             pathA.addWaypoint(2.050, 7.000);
-            pathA.addSequentialCommand(new FollowBall());// ENDPOS:4.202,6.912
+            pathA.addSequentialCommand(new GrabNote());// ENDPOS:4.202,6.912
             if (doLastPart) {// path on
                 pathA.addWaypoint(4.430, 5.364);
                 pathA.addWaypoint(3.086, 4.931);
