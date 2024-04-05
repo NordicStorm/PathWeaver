@@ -41,7 +41,7 @@ To run PathWeaver use the command `./gradlew run`
             config.maxAnglularVelocity = 12;
 
             MultiPartPath pathA = new MultiPartPath(RobotContainer.drivetrain, config, null);
-            pathA.resetPosition(0.350, 7.000);
+            pathA.resetPosition(0.381, 7.000);
             pathA.addWaypoint(2.050, 7.000);
             pathA.addSequentialCommand(new GrabNote());// ENDPOS:4.202,6.912
             if (doLastPart) {// path on

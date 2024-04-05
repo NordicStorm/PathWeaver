@@ -59,6 +59,9 @@
     -fx-cursor: hand;
     -fx-fill: rgb(0, 255, 0);
 }
+.hasparallel{
+    -fx-effect: innershadow( gaussian, rgb( 0, 255,0), 3, 1, 0, 0 );
+}
 .pathouter {
     -fx-stroke-line-cap: round;
     -fx-fill: null;

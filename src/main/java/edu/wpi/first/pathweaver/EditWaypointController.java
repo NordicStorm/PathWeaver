@@ -6,10 +6,13 @@ import edu.wpi.first.pathweaver.global.CurrentSelections;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.util.converter.NumberStringConverter;
@@ -22,6 +25,8 @@ public class EditWaypointController {
   private TextField yPosition;
   @FXML
   private Label nameLabel;
+  @FXML
+  private ListView<String> extraStrings;
 
   private List<Control> controls;
   private ChangeListener<String> nameListener;
@@ -103,12 +108,13 @@ public class EditWaypointController {
     field.textProperty().unbindBidirectional(doubleProperty);
     field.setText("");
   }
-
+  private ObservableList<String> emptyList = FXCollections.observableArrayList();
   private void unbind(Waypoint oldValue) {
     controls.forEach(control -> control.setDisable(true));
     disableDoubleBinding(xPosition, oldValue.xProperty());
     disableDoubleBinding(yPosition, oldValue.yProperty());
     nameLabel.textProperty().set("");
+    extraStrings.itemsProperty().set(emptyList);
   }
 
   private void bind(Waypoint newValue) {
@@ -117,7 +123,7 @@ public class EditWaypointController {
     enableDoubleBinding(xPosition, newValue.xProperty());
     yDoubleBinding(yPosition, newValue.yProperty());
     nameLabel.textProperty().set(newValue.getName());
-    
+    extraStrings.setItems(newValue.getParallel());
   }
 
   private void enableSaving(ObservableValue<Waypoint> wp) {

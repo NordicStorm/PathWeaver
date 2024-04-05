@@ -8,10 +8,12 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
-
+<?import javafx.scene.control.ListView?>
 <GridPane fx:id="properties" hgap="5.0" vgap="5.0" BorderPane.alignment="CENTER" xmlns="http://javafx.com/javafx/10.0.1"
           xmlns:fx="http://javafx.com/fxml/1" fx:controller="edu.wpi.first.pathweaver.EditWaypointController">
     <columnConstraints>
+        <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" minWidth="10.0" percentWidth="12.0" prefWidth="100.0"/>
+        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
         <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" minWidth="10.0" percentWidth="12.0" prefWidth="100.0"/>
         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
         <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" minWidth="10.0" percentWidth="12.0" prefWidth="100.0"/>
@@ -30,5 +32,6 @@
     <TextField GridPane.columnIndex="1" fx:id="xPosition"/>
     <TextField fx:id="yPosition" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
     <Label fx:id="nameLabel" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+    <ListView fx:id="extraStrings" GridPane.rowIndex="0" minWidth="250.0" GridPane.columnIndex="2" GridPane.rowSpan="3"/>
 
 </GridPane>

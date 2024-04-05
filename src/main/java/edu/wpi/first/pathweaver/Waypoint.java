@@ -7,13 +7,19 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
 
 import javax.measure.Unit;
 import javax.measure.quantity.Length;
+
+import edu.wpi.first.pathweaver.path.Path;
 
 /**
  * The Waypoint class represents a point on the field. This class
@@ -38,6 +44,8 @@ public class Waypoint {
 	public int numberOfLinesInSection = -1;
 	private final Line tangentLine;
 	private final Polygon icon;
+	private final Circle innerCircle;
+    private final ObservableList<String> extraList = FXCollections.observableArrayList();
 
 	/**
 	 * Creates Waypoint object containing javafx circle.
@@ -55,8 +63,8 @@ public class Waypoint {
 		setCoords(position);
 
 		icon = new Polygon(0.0, SIZE / 3, SIZE, 0.0, 0.0, -SIZE / 3);
+		innerCircle = new Circle();
 		setupIcon();
-
 		tangentLine = new Line();
 		tangentLine.getStyleClass().add("tangent");
 		tangentLine.startXProperty().bind(x);
@@ -81,6 +89,11 @@ public class Waypoint {
 		icon.translateXProperty().bind(x);
 		//Convert from WPILib to JavaFX coords
 		icon.translateYProperty().bind(y.negate());
+		innerCircle.translateXProperty().bind(x);
+		innerCircle.translateYProperty().bind(y.negate());
+		innerCircle.setStroke(Color.BLACK);
+		innerCircle.setFill(Color.GREEN);
+		innerCircle.setVisible(false);
 		FxUtils.applySubchildClasses(this.icon);
 		this.icon.rotateProperty()
 				.bind(Bindings.createObjectBinding(
@@ -254,5 +267,13 @@ public class Waypoint {
 		return x.get() == point.x.get() && y.get() == point.y.get() && tangentX.get() == point.tangentX.get()
 				&& tangentY.get() == point.tangentY.get() && name.get().equals(point.name.get())
 				&& isLockTangent() == point.isLockTangent() && isOutsidecommand() == point.isOutsidecommand();
+	}
+
+    public void addParallel(String text) {
+        extraList.add(text);
+		icon.getStyleClass().add("hasparallel");
+    }
+	public ObservableList<String> getParallel(){
+		return extraList;
 	}
 }
