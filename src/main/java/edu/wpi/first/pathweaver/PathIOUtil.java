@@ -50,18 +50,18 @@ public final class PathIOUtil {
 
 						String currentArgs = line.substring(line.indexOf("(") + 1, line.indexOf(")"));
 						line = line.replaceFirst(currentArgs, newArgs);
-						ignoredLines = wp.getParallel().size();
 					}
 
 					int numSpaces = line.length() - (line.stripLeading()).length();
 					newLines.add(line);
 					newLineNums.add(newLines.size() - 1);
 					edit = true;
-					while(ignoredLines > 0){
+					while(lineNum < wp.endingLineParallel){
 						lineNum++;
 						newLines.add(lines.get(lineNum));
-						ignoredLines--;
 					}
+					numSpaces = lines.get(lineNum).length() - (lines.get(lineNum).stripLeading()).length();
+
 					for (int j = i + 1; j < path.getWaypoints().size(); j++) {
 						// System.out.println("checkline"+j);
 						Waypoint possibleNew = path.getWaypoints().get(j);
@@ -204,7 +204,7 @@ public final class PathIOUtil {
 				} else if (methodName.equals("addSequentialCommand") || methodName.equals("resetPosition")) {
 					String text = lineNum + 1 + ": " + params.get(0);
 					if (line.indexOf("NOMOVE") != -1) {
-						waypoints.get(waypoints.size() - 1).addParallel(text);
+						waypoints.get(waypoints.size() - 1).addParallel(text, lineNum);
 					} else {
 						String metaKey = "ENDPOS:";
 						int metaIndex = line.indexOf(metaKey);

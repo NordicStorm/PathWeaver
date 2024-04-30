@@ -42,6 +42,7 @@ public class Waypoint {
 	private final StringProperty name = new SimpleStringProperty("");
 	public int lineNumber = -1;
 	public int numberOfLinesInSection = -1;
+	public int endingLineParallel = -1;
 	private final Line tangentLine;
 	private final Polygon icon;
 	private final Circle innerCircle;
@@ -269,8 +270,11 @@ public class Waypoint {
 				&& isLockTangent() == point.isLockTangent() && isOutsidecommand() == point.isOutsidecommand();
 	}
 
-    public void addParallel(String text) {
+    public void addParallel(String text, int line) {
         extraList.add(text);
+		if(line > endingLineParallel){
+			endingLineParallel = line;
+		}
 		icon.getStyleClass().add("hasparallel");
     }
 	public ObservableList<String> getParallel(){
