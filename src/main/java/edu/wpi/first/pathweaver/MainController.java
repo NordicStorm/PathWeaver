@@ -52,10 +52,6 @@ public class MainController {
 
   private TreeItem<String> selected = null;
 
-  @FXML private Button duplicate;
-  @FXML private Button flipHorizontal;
-  @FXML private Button flipVertical;
-
   @FXML
   private void initialize() {
     setupDrag();
@@ -68,10 +64,6 @@ public class MainController {
 
     paths.setEditable(false);
     setupEditable();
-
-    duplicate.disableProperty().bind(CurrentSelections.curPathProperty().isNull());
-    flipHorizontal.disableProperty().bind(CurrentSelections.curPathProperty().isNull());
-    flipVertical.disableProperty().bind(CurrentSelections.curPathProperty().isNull());
 
     editWaypointController.bindToWaypoint(CurrentSelections.curWaypointProperty(), fieldDisplayController);
     reloadAllPaths();

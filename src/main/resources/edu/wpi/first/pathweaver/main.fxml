@@ -33,17 +33,7 @@
          <TitledPane animated="false" collapsible="false" text="Paths" VBox.vgrow="ALWAYS">
             <TreeView fx:id="paths"/>
          </TitledPane>
-         <ToolBar prefHeight="40.0" VBox.vgrow="NEVER">
-            <Button mnemonicParsing="false" onAction="#createPath" text="+"/>
-            <Button mnemonicParsing="false" onAction="#delete" text="-"/>
-            <Button fx:id="flipHorizontal" mnemonicParsing="false" onAction="#flipHorizontal" text="Flip H"/>
-            <Button fx:id="flipVertical" mnemonicParsing="false" onAction="#flipVertical" text="Flip V"/>
-            <Button fx:id="duplicate" mnemonicParsing="false" onAction="#duplicate" text="Duplicate"/>
-         </ToolBar>
-         <ToolBar prefHeight="40.0" prefWidth="200.0">
-            <Button mnemonicParsing="false" onAction="#buildPaths" text="Build Paths"/>
-            <Button mnemonicParsing="false" onAction="#editProject" text="Edit Project"/>
-         </ToolBar>
+         
       </VBox>
     </right>
 </BorderPane>
