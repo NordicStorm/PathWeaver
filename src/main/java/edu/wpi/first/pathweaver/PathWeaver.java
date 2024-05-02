@@ -9,6 +9,7 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
@@ -24,6 +25,7 @@ public class PathWeaver extends Application {
 
     ExtensionManager.getInstance().refresh();
     Pane root = FXMLLoader.load(getClass().getResource("welcomeScreen.fxml"));
+    primaryStage.getIcons().add(new Image(getClass().getResourceAsStream( "icon.png" ))); 
     this.mainScene = new Scene(root);
     primaryStage.setTitle("PathWeaver - " + getVersion());
     // Work around dialog bug
