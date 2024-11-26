@@ -17,14 +17,12 @@ plugins {
     id 'idea'
     id 'jacoco'
     id 'pmd'
-    id 'edu.wpi.first.wpilib.versioning.WPILibVersioningPlugin' version '2023.0.1'
     id 'edu.wpi.first.wpilib.repositories.WPILibRepositoriesPlugin' version '2020.2'
     id 'checkstyle'
     id 'edu.wpi.first.WpilibTools' version '1.1.0'
 }
 
-wpilibVersioning.buildServerMode = project.hasProperty('buildServer')
-wpilibVersioning.releaseMode = project.hasProperty('releaseMode')
+
 
 allprojects {
     repositories {
@@ -37,8 +35,6 @@ allprojects {
     }
 }
 
-wpilibVersioning.version.finalizeValue()
-version = wpilibVersioning.version.get()
 
 def outputsFolder = file("$buildDir/allOutputs")
 
