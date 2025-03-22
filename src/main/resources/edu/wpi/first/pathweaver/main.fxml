@@ -6,34 +6,30 @@
 <?import javafx.scene.control.TreeView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
-
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="360.0" minWidth="640.0" prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="edu.wpi.first.pathweaver.MainController">
+<?import javafx.scene.layout.HBox?>
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="360.0" minWidth="240.0" prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="edu.wpi.first.pathweaver.MainController">
    <center>
       <BorderPane BorderPane.alignment="CENTER">
          <center>
             <fx:include fx:id="fieldDisplay" source="fieldDisplay.fxml" />
          </center>
-         <bottom>
-            <TitledPane text="Waypoint Properties" BorderPane.alignment="CENTER">
-               <fx:include fx:id="editWaypoint" source="editWaypoint.fxml"/>
-            </TitledPane>
-         </bottom>
+         
       </BorderPane>
    </center>
-   <right>
-      <VBox BorderPane.alignment="CENTER">
-         <TitledPane animated="false" collapsible="false" text="Autonomous Routines">
-            <TreeView fx:id="autons"/>
-         </TitledPane>
-         <ToolBar prefHeight="40.0">
-            <items>
-               
-            </items>
-         </ToolBar>
-         <TitledPane animated="false" collapsible="false" text="Paths" VBox.vgrow="ALWAYS">
-            <TreeView fx:id="paths"/>
-         </TitledPane>
-         
-      </VBox>
-    </right>
+   <bottom>
+            <!-- Use HBox to arrange Waypoint Properties and Paths side by side -->
+            <HBox spacing="0" BorderPane.alignment="CENTER">
+               <TitledPane collapsible="false" text="Waypoint Properties" VBox.vgrow="NEVER">
+                  <fx:include fx:id="editWaypoint" source="editWaypoint.fxml"/>
+               </TitledPane>
+               <TitledPane animated="false" collapsible="true" text="Paths" minWidth="100.0" maxHeight="155.0">
+                  <VBox spacing="1">
+                     <TreeView fx:id="paths" prefHeight="100.0"/>
+                     <Button mnemonicParsing="false" onAction="#editProject" text="Edit Project"/>
+                  </VBox>
+               </TitledPane>
+
+            </HBox>
+         </bottom>
 </BorderPane>
+

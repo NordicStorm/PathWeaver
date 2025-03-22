@@ -30,7 +30,7 @@ import edu.wpi.first.pathweaver.path.Path;
  * should increase as one moves left.
  */
 public class Waypoint {
-	private static final double SIZE = 60.0;
+	private static final double SIZE = 90.0;
 	private static final double ICON_X_OFFSET = (SIZE * (3 * 30 / SIZE) / 5D) / 16.5;
 
 	private final DoubleProperty x = new SimpleDoubleProperty();

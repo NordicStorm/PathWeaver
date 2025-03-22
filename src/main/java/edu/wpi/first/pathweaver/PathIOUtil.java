@@ -158,7 +158,7 @@ public final class PathIOUtil {
 			braceCount += openBraceNum;
 			if (openBraceNum > 0) {
 				if (braceCount == activatedBraceLevel + 1) {
-					if (!content.contains("path off") || content.contains(mainMethod)) {
+					if (!content.toLowerCase().replace(" ", "").contains("path off") || content.contains(mainMethod)) {
 						activatedBraceLevel = braceCount;
 					}
 				}
@@ -203,7 +203,7 @@ public final class PathIOUtil {
 					waypoints.add(point);
 				} else if (methodName.equals("addSequentialCommand") || methodName.equals("resetPosition")) {
 					String text = lineNum + 1 + ": " + params.get(0);
-					if (line.indexOf("NOMOVE") != -1) {
+					if (line.toUpperCase().replace(" ", "").indexOf("NOMOVE") != -1) {
 						waypoints.get(waypoints.size() - 1).addParallel(text, lineNum);
 					} else {
 						String metaKey = "ENDPOS:";
@@ -211,8 +211,8 @@ public final class PathIOUtil {
 						double x = 0;
 						double y = 0;
 						if (metaIndex == -1) {
-							x = 0;
-							y = lineNum * 0.1;
+							x = waypoints.get(waypoints.size() - 1).getX() + 0.5;
+							y = waypoints.get(waypoints.size() - 1).getY() + height + 0.5;
 						} else {
 							String info = line.substring(metaIndex + metaKey.length());
 							String[] rawPos = info.split(",");

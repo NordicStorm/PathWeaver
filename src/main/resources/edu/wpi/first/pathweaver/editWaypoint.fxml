@@ -16,8 +16,7 @@
         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="300.0"/>
         <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" minWidth="10.0" percentWidth="12.0" prefWidth="200.0"/>
         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="200.0"/>
-        <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" minWidth="10.0" percentWidth="12.0" prefWidth="200.0"/>
-        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="200.0"/>
+        
     </columnConstraints>
     <rowConstraints>
         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>

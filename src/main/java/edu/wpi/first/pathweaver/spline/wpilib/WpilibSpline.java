@@ -82,7 +82,7 @@ public class WpilibSpline extends AbstractSpline {
             SplineSegment seg = new SplineSegment(waypoints.get(i-1), waypoints.get(i), path);
 
             for (int sample = 0; sample <= 40; sample++) {
-                PoseWithCurvature pose = quintic.getPoint(sample / 40.0);
+                PoseWithCurvature pose = quintic.getPoint(sample / 40.0).get();
                 seg.addPointToLines(pose.poseMeters.getTranslation().getX());
                 
                 //Convert from WPILib to JavaFX coords
@@ -105,7 +105,7 @@ public class WpilibSpline extends AbstractSpline {
 
     @Override
     public void addToGroup(Group splineGroup, double scaleFactor) {
-        strokeWidth.set(scaleFactor*3);
+        strokeWidth.set(scaleFactor*4);
         splineGroup.getChildren().add(group);
         group.toBack();
     }

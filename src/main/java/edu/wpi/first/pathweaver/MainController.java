@@ -223,7 +223,7 @@ public class MainController {
             }*/
             selected = newValue;
             if (newValue != pathRoot && newValue != null) {
-              //fieldDisplayController.removeAllPath();
+              fieldDisplayController.removeAllPath();
               fieldDisplayController.addPath(directory, newValue);
               CurrentSelections.getCurPath().selectWaypoint(CurrentSelections.getCurPath().getStart());
             }

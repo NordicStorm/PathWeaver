@@ -1,6 +1,7 @@
 package edu.wpi.first.pathweaver;
 
-import edu.wpi.first.math.WPIMathJNI;
+import edu.wpi.first.util.WPIUtilJNI;
+import edu.wpi.first.math.jni.WPIMathJNI;
 import edu.wpi.first.pathweaver.extensions.ExtensionManager;
 import edu.wpi.first.util.CombinedRuntimeLoader;
 import edu.wpi.first.util.WPIUtilJNI;
