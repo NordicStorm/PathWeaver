@@ -9,6 +9,7 @@ import java.util.Map;
 import static java.nio.file.StandardWatchEventKinds.*;
 
 import java.io.IOException;
+import java.nio.file.ClosedWatchServiceException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 
@@ -27,6 +28,7 @@ public class FileWatcherThread extends Thread{
         
 	}
 	private WatchService watcher;
+    private boolean shouldRun = true;
     private final Map<WatchKey,Path> keys;
     private final Map<String,Runnable> callbacks;
 
@@ -62,12 +64,14 @@ public class FileWatcherThread extends Thread{
     }
 	@Override
 	public void run() {
-		for (;;) {
+		while(shouldRun) {
             // wait for key to be signalled
             WatchKey key;
             try {
                 key = watcher.take();
             } catch (InterruptedException x) {
+                return;
+            } catch (ClosedWatchServiceException e) {
                 return;
             }
 
@@ -112,4 +116,13 @@ public class FileWatcherThread extends Thread{
 	public static FileWatcherThread getInstance() {
 		return instance;
 	}
+    public void stopThread() {
+        try {
+            watcher.close();
+        } catch (IOException e) {
+            
+        }
+        shouldRun = false;
+        interrupt();
+    }
 }

@@ -62,7 +62,7 @@ public class ProjectPreferences {
 	private static ProjectPreferences instance;
 
 	private final String fileName;
-	private final String KEYWORD = "// !PATHWEAVER_INFO: ";
+	private final String KEYWORD = "// !WAYFINDER_INFO: ";
 	private Values values;
 	private WatchKey fileWatchKey;
 

@@ -28,7 +28,7 @@ public class PathWeaver extends Application {
     Pane root = FXMLLoader.load(getClass().getResource("welcomeScreen.fxml"));
     primaryStage.getIcons().add(new Image(getClass().getResourceAsStream( "icon.png" ))); 
     this.mainScene = new Scene(root);
-    primaryStage.setTitle("PathWeaver - " + getVersion());
+    primaryStage.setTitle("Wayfinder - " + getVersion());
     // Work around dialog bug
     // See
     // https://stackoverflow.com/questions/55190380/javafx-creates-alert-dialog-which-is-too-small
@@ -37,9 +37,13 @@ public class PathWeaver extends Application {
         e -> Platform.runLater(() -> primaryStage.setResizable(false)));
     primaryStage.setScene(this.mainScene);
     primaryStage.show();
+    
     Loggers.setupLoggers();
     FileWatcherThread fileWatcherThread = new FileWatcherThread();
     fileWatcherThread.start();
+    primaryStage.setOnCloseRequest (
+      e -> fileWatcherThread.stopThread()
+    );
   }
 
   /**

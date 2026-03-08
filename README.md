@@ -1,14 +1,14 @@
 ![CI](https://github.com/wpilibsuite/PathWeaver/workflows/CI/badge.svg)
-# PathWeaver
+# Wayfinder
 
-PathWeaver is a front end motion planning program. It is primarily designed for FRC teams using WPILib's trajectories and splines. For more instructions on using PathWeaver, refer to the [WPILib instructions](https://docs.wpilib.org/en/stable/docs/software/wpilib-tools/pathweaver/index.html).
+Wayfinder is a front end motion planning program. It is a customization of WPILib Pathweaver. It is primarily designed for FRC teams using WPILib's trajectories and splines.
 
 ## Commenting
 For bugs or feature suggestions, make a github issue.
 
 ## Building
 
-To run PathWeaver use the command `./gradlew run`
+To run Wayfinder use the command `./gradlew run`
 
 ### Requirements
 - [JDK 11](https://adoptopenjdk.net/)
@@ -29,7 +29,7 @@ To run PathWeaver use the command `./gradlew run`
 
         @Override
         public void initializeCommands() {
-            // !PATHWEAVER_INFO: {"trackWidth":0.762,"gameName":"Crescendo"}
+            // !WAYFINDER_INFO: {"trackWidth":0.762,"gameName":"Crescendo"}
             boolean doLastPart = SmartDashboard.getBoolean("DoLastPart?", true);
             RobotContainer.drivetrain.resetAngle();
 

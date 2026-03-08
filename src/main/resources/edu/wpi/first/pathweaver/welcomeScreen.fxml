@@ -17,7 +17,7 @@
    <center>
       <VBox alignment="CENTER" spacing="10.0" BorderPane.alignment="CENTER">
          <children>
-            <Label text="PathWeaver">
+            <Label text="Wayfinder">
                <font>
                   <Font size="40.0" />
                </font>
