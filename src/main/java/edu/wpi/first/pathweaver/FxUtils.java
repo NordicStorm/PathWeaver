@@ -113,14 +113,7 @@ public final class FxUtils {
       mainControllerInstance = (MainController) loader.getController();
       Stage primaryStage = (Stage) scene.getWindow();
       primaryStage.resizableProperty().setValue(true);
-      primaryStage.setOnCloseRequest(value -> {
-        // Prompt the user to save all changed paths, consuming the event if they cancel the close
-        if (SaveManager.getInstance().promptSaveAll()) {
-          ProgramPreferences.getInstance().saveSizeAndPosition(primaryStage);
-        } else {
-          value.consume();
-        }
-      });
+      
       ProgramPreferences.getInstance().setSizeAndPosition(primaryStage);
       scene.getStylesheets().add("/edu/wpi/first/pathweaver/style.css");
       scene.setRoot(root);
