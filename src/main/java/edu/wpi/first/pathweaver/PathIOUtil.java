@@ -56,7 +56,7 @@ public final class PathIOUtil {
 					newLines.add(line);
 					newLineNums.add(newLines.size() - 1);
 					edit = true;
-					while(lineNum < wp.endingLineParallel){
+					while (lineNum < wp.endingLineParallel) {
 						lineNum++;
 						newLines.add(lines.get(lineNum));
 					}
@@ -175,7 +175,7 @@ public final class PathIOUtil {
 					method = content.substring((pathName + ".").length());
 				if (content.contains(".setPose"))
 					method = content.substring(content.indexOf(".setPose") + 1);
-				System.out.println(method);
+				//System.out.println(method);
 				String methodName = method.substring(0, method.indexOf("("));
 				String allParams = method.substring(method.indexOf("(") + 1, method.indexOf(";") - 1);
 				int parenCount = countChars(allParams, "(");
@@ -201,9 +201,17 @@ public final class PathIOUtil {
 					point.numberOfLinesInSection = 0;// TODO
 					point.setName(lineNum + 1 + ": " + methodName);
 					waypoints.add(point);
-				} else if (methodName.equals("addSequentialCommand") || methodName.equals("resetPosition")) {
-					String text = lineNum + 1 + ": " + params.get(0);
-					if (line.toUpperCase().replace(" ", "").indexOf("NOMOVE") != -1) {
+				} else if (methodName.length() > 1) {
+					String text = lineNum + 1 + ": " + method;
+					if(methodName.equals("addSequentialCommand") || methodName.equals("addParallelCommand")) {
+						text = lineNum + 1 + ": " + params.get(0);
+					} 
+					boolean isParallel = true;
+					if ((methodName.equals("addSequentialCommand")) &&
+							line.toUpperCase().replace(" ", "").indexOf("NOMOVE") == -1) {
+						isParallel = false;
+					}
+					if (isParallel) {
 						waypoints.get(waypoints.size() - 1).addParallel(text, lineNum);
 					} else {
 						String metaKey = "ENDPOS:";
