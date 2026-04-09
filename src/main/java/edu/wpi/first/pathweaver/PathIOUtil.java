@@ -158,7 +158,7 @@ public final class PathIOUtil {
 			braceCount += openBraceNum;
 			if (openBraceNum > 0) {
 				if (braceCount == activatedBraceLevel + 1) {
-					if (!content.toLowerCase().replace(" ", "").contains("path off") || content.contains(mainMethod)) {
+					if (!content.toLowerCase().replace(" ", "").contains("pathoff") || content.contains(mainMethod)) {
 						activatedBraceLevel = braceCount;
 					}
 				}
